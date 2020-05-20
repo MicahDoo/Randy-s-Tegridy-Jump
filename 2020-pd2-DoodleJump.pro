@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += multimedia
+QT       += multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,11 +27,28 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        KennyBody.cpp \
+        eric.cpp \
         main.cpp \
-        mainwindow.cpp
+        memberberry.cpp \
+        monsters.cpp \
+        mrhankey.cpp \
+        platforms.cpp \
+        player.cpp \
+        props.cpp \
+        view.cpp
 
 HEADERS += \
-        mainwindow.h
+        KennyBody.h \
+        eric.h \
+        memberberry.h \
+        monsters.h \
+        mrhankey.h \
+        numbers.h \
+        platforms.h \
+        player.h \
+        props.h \
+        view.h
 
 FORMS += \
         mainwindow.ui
@@ -38,3 +57,9 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    Resource/Eric Cartman.png
+
+RESOURCES += \
+    Resource.qrc

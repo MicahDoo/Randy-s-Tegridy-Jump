@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resource/Eric Cartman Right.png</file>
+        <file>Resource/Bullet.png</file>
+        <file>Resource/Eric Cartman Left.png</file>
+        <file>Resource/Platform.png</file>
+        <file>Resource/RandyCrouchedRight.png</file>
+        <file>Resource/RandyLeft.png</file>
+        <file>Resource/RandyRight.png</file>
+        <file>Resource/RandyCrouchedLeft.png</file>
+        <file>Resource/Background.jpeg</file>
+        <file>Resource/ButterflyLeft.png</file>
+        <file>Resource/ButterflyRight.png</file>
+        <file>Resource/ManBearPig.PNG</file>
+        <file>Resource/MemberBerry.png</file>
+        <file>Resource/Mountains.png</file>
+        <file>Resource/Satan.PNG</file>
+        <file>Resource/TegridyWeed.png</file>
+        <file>Resource/Tree.png</file>
+        <file>Resource/Wings.png</file>
+        <file>Resource/ElasticStill.png</file>
+        <file>Resource/ElasticSet.png</file>
+        <file>Resource/EricRight.png</file>
+        <file>Resource/EricLeft.png</file>
+        <file>Resource/EricShootingLeft.png</file>
+        <file>Resource/EricShootingRight.png</file>
+        <file>Resource/South Park Ost Tegridy Farms.mp3</file>
+        <file>Resource/Start.mp3</file>
+        <file>Resource/TegridyWeed.mp3</file>
+        <file>Resource/Respect My Authority.mp3</file>
+        <file>Resource/Satan.mp3</file>
+        <file>Resource/OohIMember.mp3</file>
+        <file>Resource/MemberFeelingSafe.mp3</file>
+        <file>Resource/MemberF.mp3</file>
+        <file>Resource/ManBearPig.mp3</file>
+        <file>Resource/HowdyHow.mp3</file>
+        <file>Resource/Game Over.mp3</file>
+        <file>Resource/Cool.mp3</file>
+        <file>Resource/BakcgroundMusic.mp3</file>
+        <file>Resource/MrHankey.png</file>
+        <file>Resource/smoke.png</file>
+        <file>Resource/AngelKenny.png</file>
+        <file>Resource/DeadKenny.png</file>
+    </qresource>
+</RCC>
