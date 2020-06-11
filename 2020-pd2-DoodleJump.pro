@@ -27,7 +27,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        KennyBody.cpp \
         eric.cpp \
         main.cpp \
         memberberry.cpp \
@@ -39,7 +38,6 @@ SOURCES += \
         view.cpp
 
 HEADERS += \
-        KennyBody.h \
         eric.h \
         memberberry.h \
         monsters.h \
