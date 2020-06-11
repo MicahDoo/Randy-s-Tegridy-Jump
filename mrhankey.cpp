@@ -7,10 +7,10 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-MrHankey::MrHankey(QGraphicsItem *parent){
-    setParentItem(parent);
+MrHankey::MrHankey(){
+    //setParentItem(parent);
     setPixmap(QPixmap(":/Resource/MrHankey.png").scaled(100,80));
-    setZValue(-1);
+    setZValue(4);
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(fly()));
     timer->start(1000/FPS);
@@ -59,4 +59,12 @@ void MrHankey::fly(){
 
 MrHankey::~MrHankey(){
     delete timer;
+}
+
+void MrHankey::stopTimer(){
+    timer->stop();
+}
+
+void MrHankey::resumeTimer(){
+    timer->start(1000/FPS);
 }

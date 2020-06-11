@@ -7,7 +7,9 @@
 class MrHankey: public QObject, public QGraphicsPixmapItem{
     Q_OBJECT;
 public:
-    MrHankey(QGraphicsItem *parent);
+    MrHankey();
+    void stopTimer();
+    void resumeTimer();
 public slots:
     void fly();
 private:

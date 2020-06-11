@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     view->setFixedSize(500,700);
     view->show();
-    view->fitInView(view->getScene()->sceneRect(), Qt::KeepAspectRatio);
+    view->fitInView(view->getScene()->sceneRect(), Qt::IgnoreAspectRatio);
 
 
 

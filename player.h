@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QGraphicsTextItem>
 #include <QMediaPlayer>
+#include <QGraphicsDropShadowEffect>
 #include "platforms.h"
 #include "numbers.h"
 #include "props.h"
@@ -26,6 +27,7 @@ public:
     QVector<Prop*>  getProps();
     QVector<Monster*> *getMonsters();
     QGraphicsItem * getCommonParent();
+    QGraphicsPixmapItem* getRandy();
 
     //get text items
     QGraphicsTextItem *getScore();
@@ -36,6 +38,8 @@ public:
     double getSpeed();
     directions getDirection();
     bool isProtectedMode();
+    bool isFlipMode();
+    int getTravelDistance();
 
     //set modes
     void setRocketMode(bool a);
@@ -47,6 +51,8 @@ public:
     void setElasticMode(bool a);
     void setAngelMode();
     void setLastBounce(QGraphicsItem * item);
+    void setFlipMode(bool a);
+    void setFlipEndDistance(int num);
 
     //set attributes
     void setGRAVITY(double number);
@@ -55,6 +61,8 @@ public:
     void checkNewElements();
     void checkBounce();
     void checkProps();
+    void checkDarkWell();
+    void checkFlipMode();
     void endGame();
     void pullBG();
     void rocketMove();
@@ -98,6 +106,15 @@ private:
     QTimer *fadetimer;
     QTimer *weedtimer;
     QTimer *angeltimer;
+    QTimer *weedlasttimer;
+    QTimer *butterflylasttimer;
+    QTimer *angellasttimer;
+    QTimer *decrouchtimer;
+
+    double weedRemain = -1;
+    double butterflyRemain = -1;
+    double angelRemain = -1;
+    double decrouchRemain = -1;
 
     //status
     bool leftKeyHeldDown = false;
@@ -113,6 +130,8 @@ private:
     bool elasticMode = false;
     int weedMode = 0;
     int angelMode = 0;
+    bool darkWellMode = false;
+    bool flipMode = false;
 
     // player attributes
     double BOTTOM = 650.0; // don't let items be deleted above this height
@@ -129,6 +148,8 @@ private:
     int platformcount = 0;
     int mountaincount = 0;
     int treecount = 0;
+    int nextDarkWellLocation;
+    int flipEndDistance;
 
     // game elements
     QGraphicsRectItem *commonParent;
@@ -138,8 +159,12 @@ private:
     QVector<Eric*> erics;
     QGraphicsPixmapItem *tree;
     QGraphicsPixmapItem *mountains;
+    QGraphicsPixmapItem *randy;
     QGraphicsPixmapItem *smoke;
     QGraphicsPixmapItem *kenny;
+    QGraphicsPathItem *darkness;
+    QGraphicsDropShadowEffect *shadow;
+    QGraphicsPixmapItem *darkWell;
 
     //texts
     QGraphicsTextItem *score;
@@ -150,6 +175,7 @@ private:
     QMediaPlayer *bgm;
     QMediaPlaylist *playlist;
 
+public:
     ~Player();
 };
 

@@ -14,6 +14,7 @@ class MemberBerry: public QObject, public QGraphicsPixmapItem{
 public:
     MemberBerry(sides side, QGraphicsItem *parent);
     void stopTimer();
+    void resumeTimer();
 
 public slots:
     void fly();

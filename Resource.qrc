@@ -41,5 +41,6 @@
         <file>Resource/smoke.png</file>
         <file>Resource/AngelKenny.png</file>
         <file>Resource/DeadKenny.png</file>
+        <file>Resource/Red Wall.jpg</file>
     </qresource>
 </RCC>

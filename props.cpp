@@ -26,12 +26,11 @@ void Wings::response(){
     game->getPlayer()->setDownMode(false);
     game->getPlayer()->setVerticalSpeed(3.0);
     if(game->getPlayer()->getDirection() == directions::left){
-        game->getPlayer()->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
+        game->getPlayer()->getRandy()->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
     }
     else{
-        game->getPlayer()->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
+        game->getPlayer()->getRandy()->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
     }
-    QTimer::singleShot(PROPS_DURATION, game->getPlayer(), SLOT(butterflyDead()));
 }
 
 Weed::Weed(QGraphicsItem * parent){
@@ -48,7 +47,6 @@ void Weed::response(){
     Game* game = dynamic_cast<Game*>(scene()->views()[0]);
     game->getPlayer()->setBOTTOM(1000.0);
     game->getPlayer()->setWeedMode();
-    QTimer::singleShot(PROPS_DURATION,game->getPlayer(),SLOT(weedOut()));
 }
 
 Kenny::Kenny(QGraphicsItem * parent){
@@ -60,5 +58,4 @@ Kenny::Kenny(QGraphicsItem * parent){
 void Kenny::response(){
     Game* game = dynamic_cast<Game*>(scene()->views()[0]);
     game->getPlayer()->setAngelMode();
-    QTimer::singleShot(10000,game->getPlayer(),SLOT(angelOut()));
 }

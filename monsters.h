@@ -10,6 +10,7 @@ class Monster: public QObject, public QGraphicsPixmapItem{
 public:
     Monster(QGraphicsItem *parent);
     void stopTimer();
+    void resumeTimer();
 public slots:
     void move();
 private:

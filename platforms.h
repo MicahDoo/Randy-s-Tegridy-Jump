@@ -2,14 +2,17 @@
 #define PLATFORMS_H
 
 #include <QGraphicsPixmapItem>
+#include <QObject>
 
 class Platform: public QGraphicsPixmapItem{
 public:
     //Platform();
     Platform(QGraphicsItem * parent = nullptr);
+    void stopTimer();
+    void resumeTimer();
     virtual void response(); //some platforms respond by breaking or jiggling
     virtual void behavior(); //some platforms move constanly
-private:
+protected:
     QTimer *timer;
 };
 
@@ -25,20 +28,28 @@ private:
 class Elastic: public Platform{
 public:
     Elastic(QGraphicsItem * parent = nullptr);
+    ~Elastic();
     void response();
     void behavior();
 private:
-    QTimer *timer;
+    //QTimer *timer;
 };
 
-/*class Horizontal: public Platform{
+class Horizontal: public QObject, public Platform{
+    Q_OBJECT
 public:
     Horizontal(QGraphicsItem * parent = nullptr);
+    ~Horizontal();
     void response();
     void behavior();
+public slots:
+    void move();
+private:
+    //QTimer *timer;
+    double t = 0.0;
 };
 
-class Breakable: public Platform{
+/*class Breakable: public Platform{
 public:
     Breakable(QGraphicsItem * parent = nullptr);
     void response();

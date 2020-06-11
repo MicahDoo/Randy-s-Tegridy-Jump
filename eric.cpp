@@ -45,7 +45,7 @@ void Eric::ready(){
         timer->stop();
         QMediaPlayer *cool = new QMediaPlayer();
         cool -> setMedia(QUrl("qrc:/Resource/Cool.mp3"));
-        cool ->setVolume(30);
+        cool -> setVolume(30);
         cool -> play();
         if(side == leftSide){
             setPixmap(QPixmap(":/Resource/EricLeft.png").scaled(ERIC_SIZE*1.2,ERIC_SIZE));
@@ -53,7 +53,6 @@ void Eric::ready(){
         else{
             setPixmap(QPixmap(":/Resource/EricRight.png").scaled(ERIC_SIZE*1.2,ERIC_SIZE));
         }
-        singleshottimer->stop();
         singleshottimer->start(1000);
     }
 }
@@ -92,8 +91,34 @@ QVector<MemberBerry*> * Eric::getMemberberries(){
 
 void Eric::stopTimer(){
     timer->stop();
+    singleshottimerRemain = singleshottimer->remainingTime();
+    qDebug() << "singleshottimerRemain = " << singleshottimerRemain;
     singleshottimer->stop();
-    disconnect();
+    backtimerRemain = backtimer->remainingTime();
+    qDebug() << "backtimerRemain = " << backtimerRemain;
+    backtimer->stop();
+    for (int i = 0; i < memberberries.size(); i++){
+        memberberries[i]->stopTimer();
+    }
+}
+
+void Eric::resumeTimer(){
+    if(singleshottimerRemain >= 0){
+        singleshottimer->start(singleshottimerRemain);
+        qDebug() << "singleshottimerRemain = " << singleshottimerRemain;
+        singleshottimerRemain = -1.0;
+    }
+    else if(backtimerRemain >= 0){
+        backtimer->start(backtimerRemain);
+        qDebug() << "backtimerRemain = " << backtimerRemain;
+        backtimerRemain = -1.0;
+    }
+    else{
+        timer->start(1000/FPS);
+    }
+    for (int i = 0; i < memberberries.size(); i++){
+        memberberries[i]->resumeTimer();
+    }
 }
 
 Eric::~Eric(){

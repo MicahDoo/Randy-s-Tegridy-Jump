@@ -51,9 +51,15 @@ void MemberBerry::fly(){
     //}*/
     moveBy(direction, 0);
     Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
-    if(player->collidesWithItem(this)){
-        if(!player->isProtectedMode())
-            player->setFail();
+    if(player->getRandy()->collidesWithItem(this)){
+        if(!player->isProtectedMode()){
+            if(!player->isFlipMode()){
+                scene()->views()[0]->scale(1,-1);
+                scene()->views()[0]->translate(0, 700);
+                player->setFlipEndDistance(player->getTravelDistance()+FLIP_DISTANCE);
+                player->setFlipMode(true);
+            }
+        }
     }
 }
 
@@ -75,6 +81,11 @@ void MemberBerry::stopTimer(){
 
 void MemberBerry::stopSound(QMediaPlayer* player){
     player->stop();
+}
+
+void MemberBerry::resumeTimer(){
+    timer->start();
+    swelltimer->start(1000/FPS);
 }
 
 MemberBerry::~MemberBerry(){

@@ -18,6 +18,7 @@ Player* Game::getPlayer(){
 
 void Game::setGameOver(){
     gameover = true;
+    scene->removeItem(player);
 }
 
 void Game::keyPressEvent(QKeyEvent *event){
@@ -27,6 +28,7 @@ void Game::keyPressEvent(QKeyEvent *event){
             gameover = false;
             //player->stopTimers();
             scene->clear();
+            //delete player;
             startGame();
         }
     }
@@ -40,13 +42,12 @@ void Game::keyPressEvent(QKeyEvent *event){
 void Game::startGame(){
     // create a scene
     scene = new QGraphicsScene();
-    scene -> setSceneRect(0,0, 500, SCREEN_HEIGHT);
+    scene -> setSceneRect(5,5, 500, SCREEN_HEIGHT);
     scene -> setBackgroundBrush(QBrush(QImage(":/Resource/Background.jpeg").scaled(500, SCREEN_HEIGHT)));
     setScene(scene);
 
     // create an item
     player = new Player(scene);
-    player->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
     player->setFlag(QGraphicsItem::ItemIsFocusable);
     player->setFocus();
     player->getCommonParent()->setPos(0,0);

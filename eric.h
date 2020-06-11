@@ -13,6 +13,8 @@ public:
     Eric(sides s, QGraphicsItem *parent);
     QVector<MemberBerry*> * getMemberberries();
     void stopTimer();
+    void resumeTimer();
+
 public slots:
     void ready();
     void shoot();
@@ -23,6 +25,8 @@ private:
     QTimer *backtimer;
     sides side;
     QVector<MemberBerry*> memberberries;
+    double singleshottimerRemain = -1.0;
+    double backtimerRemain = -1.0;
 public:
     ~Eric();
 };
