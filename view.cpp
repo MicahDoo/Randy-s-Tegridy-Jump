@@ -18,7 +18,7 @@ Player* Game::getPlayer(){
 
 void Game::setGameOver(){
     gameover = true;
-    scene->removeItem(player);
+    //scene->removeItem(player);
 }
 
 void Game::keyPressEvent(QKeyEvent *event){
@@ -42,7 +42,7 @@ void Game::keyPressEvent(QKeyEvent *event){
 void Game::startGame(){
     // create a scene
     scene = new QGraphicsScene();
-    scene -> setSceneRect(5,5, 500, SCREEN_HEIGHT);
+    scene -> setSceneRect(2,0, 500, SCREEN_HEIGHT);
     scene -> setBackgroundBrush(QBrush(QImage(":/Resource/Background.jpeg").scaled(500, SCREEN_HEIGHT)));
     setScene(scene);
 

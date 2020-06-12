@@ -40,6 +40,8 @@ MemberBerry::MemberBerry(sides side, QGraphicsItem * parent){
        music->setVolume(1000);
        music->play();
     }
+    pauseandfliptimer = new QTimer();
+    connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
 }
 
 void MemberBerry::fly(){
@@ -54,8 +56,10 @@ void MemberBerry::fly(){
     if(player->getRandy()->collidesWithItem(this)){
         if(!player->isProtectedMode()){
             if(!player->isFlipMode()){
-                scene()->views()[0]->scale(1,-1);
-                scene()->views()[0]->translate(0, 700);
+                flipangle = 0;
+                scalefactor = 90.0;
+                pauseandfliptimer->start(1000/FPS);
+                player->setPause(true);
                 player->setFlipEndDistance(player->getTravelDistance()+FLIP_DISTANCE);
                 player->setFlipMode(true);
             }
@@ -86,6 +90,32 @@ void MemberBerry::stopSound(QMediaPlayer* player){
 void MemberBerry::resumeTimer(){
     timer->start();
     swelltimer->start(1000/FPS);
+}
+
+void MemberBerry::flipping(){
+    if(flipangle<90){
+        //scene()->views()[0]->resetTransform();
+        //scene()->views()[0]->scale(0.9,1);
+        scene()->views()[0]->rotate(2);
+        //scene()->views()[0]->translate(0, 7);
+        ++flipangle;
+    }
+    else if(scalefactor>-90){
+        if(scalefactor != 2){
+            scene()->views()[0]->scale((scalefactor-2)/scalefactor,1);
+            scalefactor = scalefactor - 2;
+        }
+        else{
+            scene()->views()[0]->scale(-1, 1);
+            scalefactor= -2;
+        }
+    }else{
+        scene()->views()[0]->resetTransform();
+        scene()->views()[0]->scale(1,-1);
+        pauseandfliptimer->stop();
+        Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
+        player->setPause(false);
+    }
 }
 
 MemberBerry::~MemberBerry(){

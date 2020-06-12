@@ -53,6 +53,7 @@ public:
     void setLastBounce(QGraphicsItem * item);
     void setFlipMode(bool a);
     void setFlipEndDistance(int num);
+    void setPause(bool a);
 
     //set attributes
     void setGRAVITY(double number);
@@ -92,7 +93,7 @@ public slots:
     void smokeFade();
     void angelOut();
     void angelFade();
-
+    void flipping();
 
     //void fadeInKenny();
     //void fadeOutKenny();
@@ -110,6 +111,7 @@ private:
     QTimer *butterflylasttimer;
     QTimer *angellasttimer;
     QTimer *decrouchtimer;
+    QTimer *pauseandfliptimer;
 
     double weedRemain = -1;
     double butterflyRemain = -1;
@@ -128,8 +130,8 @@ private:
     bool pause = false;
     bool rocketMode = false;
     bool elasticMode = false;
-    int weedMode = 0;
-    int angelMode = 0;
+    bool weedMode = false;
+    bool angelMode = false;
     bool darkWellMode = false;
     bool flipMode = false;
 
@@ -150,6 +152,8 @@ private:
     int treecount = 0;
     int nextDarkWellLocation;
     int flipEndDistance;
+    int flipangle;
+    double scalefactor;
 
     // game elements
     QGraphicsRectItem *commonParent;

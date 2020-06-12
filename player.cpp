@@ -53,6 +53,7 @@ Player::Player(QGraphicsScene * scene){
     kenny->setZValue(-11);
     kenny -> setOpacity(0.0);
     weedtimer= new QTimer();
+    connect(weedtimer, SIGNAL(timeout()), this, SLOT(smokeFade()));
     angeltimer = new QTimer();
     weedlasttimer = new QTimer();
     weedlasttimer->setSingleShot(true);
@@ -62,6 +63,7 @@ Player::Player(QGraphicsScene * scene){
     connect(butterflylasttimer, SIGNAL(timeout()), this, SLOT(butterflyDead()));
     angellasttimer = new QTimer();
     angellasttimer->setSingleShot(true);
+    connect(angellasttimer,SIGNAL(timeout()),this,SLOT(angelOut()));
     connect(angeltimer, SIGNAL(timeout()), this, SLOT(angelFade()));
     decrouchtimer = new QTimer();
     decrouchtimer ->setSingleShot(true);
@@ -102,19 +104,20 @@ Player::Player(QGraphicsScene * scene){
 
     score = new QGraphicsTextItem();
     score->setPlainText(QString::number(0));
-    score->setDefaultTextColor(Qt::black);
+    score->setDefaultTextColor(Qt::blue);
     score->setFont(QFont("times", 16));
+    score->setZValue(6);
     gameover = new QGraphicsTextItem();
     gameover->setPlainText(QString("Game Over!"));
     gameover->setDefaultTextColor(Qt::magenta);
     gameover->setFont(QFont("ariel", 40));
     gameover->setPos(100,1400);
-    gameover->setZValue(MEMBERBERRY_LAYER);
+    gameover->setZValue(6);
     gameoverwrapup = new QGraphicsTextItem();
-    gameoverwrapup->setDefaultTextColor(Qt::black);
+    gameoverwrapup->setDefaultTextColor(Qt::green);
     gameoverwrapup->setFont(QFont("times", 20));
     gameoverwrapup->setPos(100,1480);
-    gameoverwrapup->setZValue(MEMBERBERRY_LAYER);
+    gameoverwrapup->setZValue(6);
 
     fadetimer = new QTimer();
 
@@ -145,6 +148,9 @@ Player::Player(QGraphicsScene * scene){
     randy->setGraphicsEffect(shadow);
 
     nextDarkWellLocation = 3000;
+
+    pauseandfliptimer = new QTimer();
+    connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
 }
 
 void Player::keyPressEvent(QKeyEvent *event){
@@ -359,7 +365,10 @@ void Player::checkVerticalMovement(){
 void Player::checkFlipMode(){
     if(flipMode == true){
         if(travelDistance >= flipEndDistance){
-            scene()->views()[0]->resetTransform();
+            flipangle = 0;
+            scalefactor = 90.0;
+            pauseandfliptimer->start(1000/FPS);
+            setPause(true);
             flipMode = false;
         }
     }
@@ -485,8 +494,15 @@ void Player::setDownMode(bool a){
 
 void Player::setWeedMode(){
     smoke->setOpacity(0.9);
-    ++weedMode;
-    weedlasttimer->start(PROPS_DURATION);
+    if(weedMode == true){
+        weedtimer->stop(); //stop the smoke from fading;
+        int remainingTime = weedlasttimer->remainingTime();
+        weedlasttimer->start(remainingTime + PROPS_DURATION);
+    }
+    else{
+        weedMode = true;
+        weedlasttimer->start(PROPS_DURATION);
+    }
 }
 
 void Player::setVerticalSpeed(double v){
@@ -494,16 +510,10 @@ void Player::setVerticalSpeed(double v){
 }
 
 void Player::weedOut(){
-    if(weedMode == 1){
-        BOTTOM = 650.0;
-        --weedMode;
-        ACC_PLAYER = DEFAULT_GRAVITY;
-        connect(weedtimer, SIGNAL(timeout()), this, SLOT(smokeFade()));
-        weedtimer->start(1000/FPS);
-    }
-    else{
-        --weedMode;
-    }
+    BOTTOM = 650.0;
+    weedMode = false;
+    ACC_PLAYER = DEFAULT_GRAVITY;
+    weedtimer->start(1000/FPS);
 }
 
 void Player::smokeFade(){
@@ -794,9 +804,8 @@ void Player::checkProps(){
 }
 
 void Player::endGame(){
-
     for(int i = 0; i < platforms.size();++i){
-        if(platforms[i]->y()>BOTTOM + 50){
+        if(platforms[i]->mapToScene(0,0).y() < 0-10){
             //qDebug() << "platform removed";
             scene()->removeItem(platforms[i]);
             platforms.removeFirst();
@@ -806,7 +815,7 @@ void Player::endGame(){
         }
     }
     for(int i = 0; i < props.size(); ++i){
-        if(props[i]->y()>BOTTOM + 50){
+        if(props[i]->mapToScene(0,0).y()<0-100){
             scene()->removeItem(props[i]);
             props.removeFirst();
         }
@@ -819,7 +828,7 @@ void Player::endGame(){
             monsters.remove(i);
         }
         else{
-            if(monsters[i]->y() > BOTTOM + 50){
+            if(monsters[i]->mapToScene(0,0).y() < 0-200){
                 scene()->removeItem(monsters[i]);
                 monsters[i]->stopTimer();
                 monsters.removeFirst();
@@ -831,9 +840,9 @@ void Player::endGame(){
         }
     }
     for(int i = 0; i < erics.size(); ++i){
-        if(erics[i]->y()>BOTTOM + 50){
-            scene()->removeItem(erics[i]);
-            erics.removeFirst();
+        if(erics[i]->mapToScene(0,0).y()<0-100){
+            //scene()->removeItem(erics[i]);
+            //erics.removeFirst();
         }
         else{
             break;
@@ -989,23 +998,20 @@ void Player::setLastBounce(QGraphicsItem * item){
 }
 
 void Player::setAngelMode(){
-    kenny->setOpacity(0.5);
-    ++angelMode;
-    qDebug() << "angelMode = " << angelMode;
-    angellasttimer->start(10000);
-    connect(angellasttimer,SIGNAL(timeout()),this,SLOT(angelOut()));
+    kenny->setOpacity(0.9);
+    if(angelMode){
+        angeltimer->stop(); //stop angel from fading
+        int remainingTime = angellasttimer->remainingTime();
+        angellasttimer->start(remainingTime+PROPS_DURATION);
+    }
+    else{
+        angelMode = true;
+        angellasttimer->start(PROPS_DURATION);
+    }
 }
 
 void Player::angelOut(){
-    if(angelMode == 1){
-        --angelMode;
-        angeltimer->start(1000/FPS);
-        qDebug() << "angelMode = " << angelMode;
-    }
-    else{
-        --angelMode;
-        qDebug() << "angelMode = " << angelMode;
-    }
+    angeltimer->start(1000/FPS);
 }
 
 
@@ -1014,6 +1020,7 @@ void Player::angelFade(){
          kenny->setOpacity(kenny->opacity()-0.04);
     }
     else{
+        angelMode = false;
         angeltimer->stop();
     }
 }
@@ -1036,4 +1043,89 @@ int Player::getTravelDistance(){
 
 void Player::setFlipEndDistance(int num){
     flipEndDistance = num;
+}
+
+void Player::setPause(bool a){
+    pause = a;
+    if(a){
+        verticaltimer->stop();
+        backgroundtimer->stop();
+        fadetimer->stop();
+        weedtimer->stop();
+        angeltimer->stop();
+        weedRemain = weedlasttimer->remainingTime();
+        weedlasttimer->stop();
+        butterflyRemain = butterflylasttimer->remainingTime();
+        butterflylasttimer->stop();
+        angelRemain = angellasttimer->remainingTime();
+        angellasttimer->stop();
+        decrouchRemain = decrouchtimer->remainingTime();
+        decrouchtimer->stop();
+        for(int i = 0; i < platforms.size(); ++i){
+            platforms[i]->stopTimer();
+        }
+        for(int i = 0; i < monsters.size(); ++i){
+            monsters[i]->stopTimer();
+        }
+        for(int i = 0; i < erics.size(); ++i){
+            erics[i]->stopTimer();
+        }
+    }
+    else{
+        verticaltimer->start(1000.0/FPS);
+        backgroundtimer->start(1000.0/FPS);
+        fadetimer->start(1000.0/FPS);
+        weedtimer->start(1000.0/FPS);
+        angeltimer->start(1000.0/FPS);
+        if(weedRemain >= 0){
+            weedlasttimer -> start(weedRemain);
+            weedRemain = -1;
+        }
+        if(butterflyRemain >= 0){
+            butterflylasttimer -> start(butterflyRemain);
+            butterflyRemain = -1;
+        }
+        if(angelRemain >= 0){
+            angellasttimer -> start(angelRemain);
+            angelRemain = -1;
+        }
+        if(decrouchRemain >= 0){
+            decrouchtimer -> start(decrouchRemain);
+            decrouchRemain = -1;
+        }
+        for(int i = 0; i < platforms.size(); ++i){
+            platforms[i]->resumeTimer();
+        }
+        for(int i = 0; i < monsters.size(); ++i){
+            monsters[i]->resumeTimer();
+        }
+        for(int i = 0; i < erics.size(); ++i){
+            erics[i]->resumeTimer();
+        }
+    }
+}
+
+void Player::flipping(){
+    qDebug() << "flipping back!!";
+    if(flipangle<90){
+        //scene()->views()[0]->resetTransform();
+        //scene()->views()[0]->scale(0.9,1);
+        scene()->views()[0]->rotate(2);
+        //scene()->views()[0]->translate(0, 7);
+        ++flipangle;
+    }
+    else if(scalefactor>-90){
+        if(scalefactor != 2){
+            scene()->views()[0]->scale((scalefactor-2.0)/scalefactor,1);
+            scalefactor = scalefactor - 2;
+        }
+        else{
+            scene()->views()[0]->scale(-1, 1);
+            scalefactor= -2.0;
+        }
+    }else{
+        scene()->views()[0]->resetTransform();
+        pauseandfliptimer->stop();
+        setPause(false);
+    }
 }

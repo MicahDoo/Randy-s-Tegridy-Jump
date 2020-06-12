@@ -20,11 +20,15 @@ public slots:
     void fly();
     void swell();
     void stopSound(QMediaPlayer* player);
+    void flipping();
 
 private:
     QTimer *timer;
     directions direction;
     QTimer *swelltimer;
+    QTimer *pauseandfliptimer;
+    int flipangle;
+    double scalefactor;
     QMediaPlayer *music;
 
 public:
