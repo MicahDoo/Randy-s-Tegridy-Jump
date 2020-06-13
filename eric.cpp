@@ -4,8 +4,7 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-Eric::Eric(sides s, QGraphicsItem *parent){
-    setParentItem(parent);
+Eric::Eric(sides s, QGraphicsItem *parent) : QGraphicsPixmapItem(parent){
     side = s;
     timer = new QTimer();
     singleshottimer = new QTimer();
@@ -25,9 +24,8 @@ Eric::Eric(sides s, QGraphicsItem *parent){
     setZValue(CHARACTER_LAYER);
     QMediaPlayer *respectmah = new QMediaPlayer();
     respectmah -> setMedia(QUrl("qrc:/Resource/Respect My Authority.mp3"));
-    respectmah ->setVolume(30);
+    respectmah -> setVolume(30);
     respectmah -> play();
-
 }
 
 void Eric::ready(){

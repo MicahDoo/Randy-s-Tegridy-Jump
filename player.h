@@ -178,6 +178,9 @@ private:
     // media players
     QMediaPlayer *bgm;
     QMediaPlaylist *playlist;
+    QMediaPlayer *killedKenny;
+    QMediaPlayer *kennyTalk;
+    QMediaPlayer *angelSound;
 
 public:
     ~Player();

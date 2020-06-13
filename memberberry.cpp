@@ -21,6 +21,7 @@ MemberBerry::MemberBerry(sides side, QGraphicsItem * parent){
     connect(timer, SIGNAL(timeout()), this, SLOT(fly()));
     connect(swelltimer, SIGNAL(timeout()), this, SLOT(swell()));
     music = new QMediaPlayer();
+    nya = new QMediaPlayer();
     int n = rand()%3;
     if(n == 1){
         qDebug() << "n = 1";
@@ -56,6 +57,9 @@ void MemberBerry::fly(){
     if(player->getRandy()->collidesWithItem(this)){
         if(!player->isProtectedMode()){
             if(!player->isFlipMode()){
+                nya->setMedia(QUrl("qrc:/Resource/CartmanNya.mp3"));
+                nya->setVolume(100);
+                nya-> play();
                 flipangle = 0;
                 scalefactor = 90.0;
                 pauseandfliptimer->start(1000/FPS);
@@ -94,10 +98,7 @@ void MemberBerry::resumeTimer(){
 
 void MemberBerry::flipping(){
     if(flipangle<90){
-        //scene()->views()[0]->resetTransform();
-        //scene()->views()[0]->scale(0.9,1);
         scene()->views()[0]->rotate(2);
-        //scene()->views()[0]->translate(0, 7);
         ++flipangle;
     }
     else if(scalefactor>-90){
@@ -122,4 +123,5 @@ MemberBerry::~MemberBerry(){
     delete music;
     delete timer;
     delete swelltimer;
+    delete nya;
 }

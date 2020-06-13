@@ -105,17 +105,17 @@ Player::Player(QGraphicsScene * scene){
     score = new QGraphicsTextItem();
     score->setPlainText(QString::number(0));
     score->setDefaultTextColor(Qt::blue);
-    score->setFont(QFont("times", 16));
+    score->setFont(QFont("courier", 20));
     score->setZValue(6);
     gameover = new QGraphicsTextItem();
     gameover->setPlainText(QString("Game Over!"));
     gameover->setDefaultTextColor(Qt::magenta);
-    gameover->setFont(QFont("ariel", 40));
+    gameover->setFont(QFont("impact", 40));
     gameover->setPos(100,1400);
     gameover->setZValue(6);
     gameoverwrapup = new QGraphicsTextItem();
-    gameoverwrapup->setDefaultTextColor(Qt::green);
-    gameoverwrapup->setFont(QFont("times", 20));
+    gameoverwrapup->setDefaultTextColor(Qt::darkGreen);
+    gameoverwrapup->setFont(QFont("comic sans ms", 20));
     gameoverwrapup->setPos(100,1480);
     gameoverwrapup->setZValue(6);
 
@@ -132,8 +132,7 @@ Player::Player(QGraphicsScene * scene){
 
     darkness = new QGraphicsPathItem(this);
     QPainterPath path;
-    path.addRect(-1000, -1000, 2000, 2000);
-    //path.addEllipse(-50, -100, 145, 250);
+    path.addRect(-600, -2000, 1200, 3000);
     QRadialGradient alphaGradient(22.5, 15, 150);
     alphaGradient.setColorAt(0.0, Qt::transparent);
     alphaGradient.setColorAt(0.1, Qt::transparent);
@@ -151,6 +150,14 @@ Player::Player(QGraphicsScene * scene){
 
     pauseandfliptimer = new QTimer();
     connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
+
+    killedKenny = new QMediaPlayer();
+    killedKenny->setMedia(QUrl("qrc:/Resource/YouBastard.mp3"));
+    killedKenny->setVolume(30);
+    kennyTalk = new QMediaPlayer();
+    kennyTalk->setMedia(QUrl("qrc:/Resource/AngelKenny.mp3"));
+    angelSound = new QMediaPlayer();
+    angelSound->setMedia(QUrl("qrc:/Resource/Heavens.mp3"));
 }
 
 void Player::keyPressEvent(QKeyEvent *event){
@@ -324,9 +331,6 @@ void Player::checkHorizontalMovement(){
 }
 
 void Player::checkVerticalMovement(){
-    shadow->setXOffset((x()-250.0)/20.0);
-    shadow->setYOffset((y()-600.0)/20.0);
-    randy->setGraphicsEffect(shadow);
     //if(processing == false){
         processing = true;
         //qDebug() << "vertical";
@@ -383,6 +387,8 @@ void Player::checkDarkWell(){
         darkWellMode = true;
     }
     if(darkWellMode == true){
+        shadow->setXOffset((x()-250.0)/20.0);
+        shadow->setYOffset((y()-600.0)/20.0);
         if(darkWell->mapToScene(0,0).y()<0.0){
             if(darkness->opacity()<1.0){
                 darkness->setOpacity((darkWell->mapToScene(0,0).y()+WELL_LENGTH)/SCREEN_HEIGHT);
@@ -544,7 +550,7 @@ void Player::setFail(){
         //randy->scene()->views()[0]->scale(1,-1);
         //randy->scene()->views()[0]->translate(0, -700);
         scene()->views()[0]->resetTransform();
-        gameoverwrapup->setPlainText(QString("Your score: ")+QString::number(travelDistance)+QString("\n Press enter to restart"));
+        gameoverwrapup->setPlainText(QString("Your score: ")+QString::number(travelDistance)+QString("\nPress enter to restart"));
         QMediaPlayer *gameoversound = new QMediaPlayer();
         gameoversound->setMedia(QUrl("qrc:/Resource/Game Over.mp3"));
         gameoversound->setVolume(30);
@@ -573,7 +579,13 @@ QGraphicsTextItem * Player::getGameoverwrapup(){
 
 void Player::startBGM(){
     playlist = new QMediaPlaylist();
-    playlist->addMedia(QUrl("qrc:/Resource/BakcgroundMusic.mp3"));
+    if(rand()%3 == 1){
+        playlist->clear();
+        playlist->addMedia(QUrl("qrc:/Resource/BakcgroundMusic.mp3"));
+    }else{
+        playlist->clear();
+        playlist->addMedia(QUrl("qrc:/Resource/Chicken on the Rocks.mp3"));
+    }
     playlist->setPlaybackMode(QMediaPlaylist::Loop);
 
     qDebug()<<"playing bgm";
@@ -716,6 +728,9 @@ void Player::checkNewElements(){
             else if(rand()%KENNY_PROB == 8){
                 props.push_back(new Kenny(platforms[platforms.size()-1]));
                 props[props.size()-1]->setPos(20 ,-40);
+                if(killedKenny->state() != QMediaPlayer::State::PlayingState){
+                    killedKenny->play();
+                }
             }
         }
         //scene()->addItem(platforms[platforms.size()-1]);
@@ -741,23 +756,13 @@ void Player::checkBounce(){
                     decrouchtimer->start(200);
                     platforms[i]->response();
                     setY(platforms[i]->mapToScene(0,0).y() - PLAYER_HEIGHT);
-                    //qDebug() << "height = " << y();
-                    //if(y()-MAX_HEIGHT > 0){
-                        verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
-                        ACC_PLAYER = verticalSpeed/jumpTime;
-                    //}
-                    //else{
-                        //t = (sqrt(verticalSpeed*verticalSpeed-2*GRAVITY*(y()-MAX_HEIGHT))-verticalSpeed)/GRAVITY;
-                    //}
-                    //qDebug() << "s = "<< y()-MAX_HEIGHT;
+                    verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
+                    ACC_PLAYER = verticalSpeed/jumpTime;
                     lastBounce = platforms[i];
                     if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
                         downMode = true;
                         verticalItemSpeed = (BOTTOM-lastBounce->mapToScene(0,0).y()) * 2.0/jumpTime;
                         ACC_ITEM = verticalItemSpeed/jumpTime;
-                        //qDebug() << "item speed = "<< verticalItemSpeed;
-
-                        //verticalItemSpeed = (t>0)?((BOTTOM-lastBounce->y())/t):10;
                     }
                     break;
                 }
@@ -875,7 +880,9 @@ void Player::pullBG(){
             travelDistance += BOTTOM-lastBounce->mapToScene(0,0).y();
             score->setPlainText(QString::number(travelDistance));
             if(elasticMode == true){
-                BOTTOM = 650.0;
+                if(weedMode == false){
+                    BOTTOM = 650.0;
+                }
                 ACC_PLAYER= (650.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);;
                 elasticMode = false;
             }
@@ -974,6 +981,9 @@ Player::~Player(){
     delete mountains;
     delete smoke;
     delete kenny;
+    delete killedKenny;
+    delete angelSound;
+    delete kennyTalk;
 
     /*for (int i = 0; i < platforms.size(); i++){
         platforms.erase(i);
@@ -1005,8 +1015,12 @@ void Player::setAngelMode(){
         angellasttimer->start(remainingTime+PROPS_DURATION);
     }
     else{
+        kennyTalk->setVolume(30);
+        kennyTalk->play();
+        angelSound->setVolume(30);
+        angelSound->play();
         angelMode = true;
-        angellasttimer->start(PROPS_DURATION);
+        angellasttimer->start(18000);
     }
 }
 

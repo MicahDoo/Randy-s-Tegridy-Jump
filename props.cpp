@@ -59,3 +59,7 @@ void Kenny::response(){
     Game* game = dynamic_cast<Game*>(scene()->views()[0]);
     game->getPlayer()->setAngelMode();
 }
+
+Kenny::~Kenny(){
+
+}

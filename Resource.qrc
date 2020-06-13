@@ -42,5 +42,13 @@
         <file>Resource/AngelKenny.png</file>
         <file>Resource/DeadKenny.png</file>
         <file>Resource/Red Wall.jpg</file>
+        <file>Resource/AngelKenny.mp3</file>
+        <file>Resource/YouBastard.mp3</file>
+        <file>Resource/CartmanNya.mp3</file>
+        <file>Resource/Heavens.mp3</file>
+        <file>Resource/Bounce.mp3</file>
+        <file>Resource/Spring.mp3</file>
+        <file>Resource/Bounce.wav</file>
+        <file>Resource/Chicken on the Rocks.mp3</file>
     </qresource>
 </RCC>

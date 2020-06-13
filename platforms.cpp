@@ -2,19 +2,19 @@
 #include "numbers.h"
 #include "view.h"
 #include <QtMath>
+#include <QBuffer>
 
 Platform::Platform(QGraphicsItem * parent){
     setParentItem(parent);
-    setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
-    setZValue(3);
+    setZValue(PLATFORM_LAYER);
     timer = new QTimer();
 }
 
-void Platform::response(){
+void Platform::behavior(){
     // none
 }
 
-void Platform::behavior(){
+void Platform::response(){
     // none
 }
 
@@ -26,58 +26,26 @@ void Platform::resumeTimer(){
     timer->start();
 }
 
-/*void Platform::check(){
-    //if(player->getSpeed() < 0){
-        if(mapToItem(player, 0, 0).x()<PLAYER_WIDTH && mapToItem(player, 0, 0).x() > -PLATFORM_WIDTH){
-            if(mapFromItem(player, 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(player, 0, 0).y() < PLAYER_HEIGHT - player->getSpeed());
-        }
-        player->setY(y() - PLAYER_HEIGHT);
-        player->setLastBounce(this);
-        player->Bounce();
-        response();
-    //}
-}*/
-
-Normal::Normal(QGraphicsItem * parent){
-    setParentItem(parent);
+Normal::Normal(QGraphicsItem * parent) : Platform(parent){
     setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
-    setZValue(PLATFORM_LAYER);
-    timer = new QTimer();
-    //connect(timer,SIGNAL(timeout()), this, SLOT(check()));
     timer->start(1000/FPS);
-
-    //player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
+    //sound = new QSoundEffect();
+   // sound->setSource(QUrl("qrc:/Resource/Bounce.wav"));
 }
 
 void Normal::response(){
-    // none
+    //sound->play();
 }
 
 void Normal::behavior(){
     // none
 }
 
-/*void Normal::check(){
-    if(player->getSpeed()<0){
-        if(mapToItem(player, 0, 0).x()<PLAYER_WIDTH && mapToItem(player, 0, 0).x() > -PLATFORM_WIDTH){
-            if(mapFromItem(player, 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(player, 0, 0).y() < PLAYER_HEIGHT - player->getSpeed());
-        }
-        player->setY(y() - PLAYER_HEIGHT);
-        player->setLastBounce(this);
-        player->Bounce();
-        response();
-    }
-}*/
-
-Elastic::Elastic(QGraphicsItem * parent){
-    setParentItem(parent);
+Elastic::Elastic(QGraphicsItem * parent) : Platform(parent){
     setPixmap(QPixmap(":/Resource/ElasticStill.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+40));
-    setZValue(PLATFORM_LAYER);
-    timer = new QTimer();
-    //connect(timer,SIGNAL(timeout()), this, SLOT(check()));
     timer->start(1000/FPS);
-
-    //player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
+    //sound = new QSoundEffect();
+    //sound->setSource(QUrl("qrc:/Resource/Spring.mp3"));
 }
 
 void Elastic::response(){
@@ -86,6 +54,7 @@ void Elastic::response(){
     Game* game = dynamic_cast<Game*>(scene()->views()[0]);
     game->getPlayer()->setElasticMode(true);
     game->getPlayer()->setBOTTOM(1000.0);
+    //sound->play();
 }
 
 void Elastic::behavior(){
@@ -94,30 +63,18 @@ void Elastic::behavior(){
 
 Elastic::~Elastic(){
     delete timer;
+    //delete sound;
 }
 
-/*void Elastic::check(){
-    if(player->getSpeed()<0){
-        if(mapToItem(player, 0, 0).x()<PLAYER_WIDTH && mapToItem(player, 0, 0).x() > -PLATFORM_WIDTH){
-            if(mapFromItem(player, 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(player, 0, 0).y() < PLAYER_HEIGHT - player->getSpeed());
-        }
-        player->setY(y() - PLAYER_HEIGHT);
-        player->setLastBounce(this);
-        player->Bounce();
-        response();
-    }
-}*/
-
-Horizontal::Horizontal(QGraphicsItem * parent){
-    setParentItem(parent);
-    timer = new QTimer();
+Horizontal::Horizontal(QGraphicsItem * parent) : Platform(parent){
     setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
-    setZValue(PLATFORM_LAYER);
     behavior();
+    //sound = new QSoundEffect();
+    //sound->setSource(QUrl("qrc:/Resource/Bounce.wav"));
 }
 
 void Horizontal::response(){
-    //none
+    //sound->play();
 }
 
 void Horizontal::behavior(){
@@ -126,12 +83,11 @@ void Horizontal::behavior(){
 }
 
 void Horizontal::move(){
-    //qDebug() << "moving platform";
     moveBy(3.0*qCos(t),0);
-    //qDebug() << "moving";
     t = t + 0.02;
 }
 
 Horizontal::~Horizontal(){
     delete timer;
+    //delete sound;
 }

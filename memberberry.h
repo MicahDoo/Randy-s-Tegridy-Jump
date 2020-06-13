@@ -30,6 +30,7 @@ private:
     int flipangle;
     double scalefactor;
     QMediaPlayer *music;
+    QMediaPlayer *nya;
 
 public:
     ~MemberBerry();

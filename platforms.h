@@ -3,6 +3,8 @@
 
 #include <QGraphicsPixmapItem>
 #include <QObject>
+#include <QMediaPlayer>
+#include <QSoundEffect>
 
 class Platform: public QGraphicsPixmapItem{
 public:
@@ -14,6 +16,7 @@ public:
     virtual void behavior(); //some platforms move constanly
 protected:
     QTimer *timer;
+    //QSoundEffect *sound;
 };
 
 class Normal: public Platform{
@@ -22,7 +25,7 @@ public:
     void response();
     void behavior();
 private:
-    QTimer *timer;
+    //QTimer *timer;
 };
 
 class Elastic: public Platform{
