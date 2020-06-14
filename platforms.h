@@ -13,10 +13,13 @@ public:
     //Platform();
     Platform(QGraphicsItem * parent = nullptr);
     ~Platform();
-    void stopTimer();
-    void resumeTimer();
     virtual void response(); //some platforms respond by breaking or jiggling
     virtual void behavior(); //some platforms move constanly
+
+public slots:
+    void stopTimer();
+    void resumeTimer();
+
 protected:
     QTimer *timer;
     //QSoundEffect *sound;
@@ -32,11 +35,14 @@ private:
 };
 
 class Elastic: public Platform{
+    Q_OBJECT
 public:
     Elastic(QGraphicsItem * parent = nullptr);
     ~Elastic();
     void response();
     void behavior();
+public: signals:
+    void spring();
 private:
 
 };

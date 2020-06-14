@@ -49,9 +49,7 @@ Elastic::Elastic(QGraphicsItem * parent) : Platform(parent){
 void Elastic::response(){
     setPixmap(QPixmap(":/Resource/ElasticSet.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+30));
     moveBy(0, -20);
-    Game* game = dynamic_cast<Game*>(scene()->views()[0]);
-    game->getPlayer()->setElasticMode(true);
-    game->getPlayer()->setBOTTOM(1000.0);
+    emit spring();
 }
 
 void Elastic::behavior(){

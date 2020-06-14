@@ -62,6 +62,8 @@ void Eric::shoot(){
         setPixmap(QPixmap(":/Resource/EricShootingRight.png").scaled(ERIC_SIZE*1.2,ERIC_SIZE));
         memberberries[memberberries.size()-1]->setPos(0,ERIC_SIZE*0.45);
     }
+    connect(this, SIGNAL(paused()), memberberries[memberberries.size()-1], SLOT(stopTimer()));
+    connect(this, SIGNAL(resumed()), memberberries[memberberries.size()-1], SLOT(resumeTimer()));
     backtimer->stop();
     backtimer->start(1000);
 }
@@ -83,17 +85,19 @@ QVector<MemberBerry*> * Eric::getMemberberries(){
 }
 
 void Eric::stopTimer(){
+    emit paused();
     timer->stop();
     singleshottimerRemain = singleshottimer->remainingTime();
     singleshottimer->stop();
     backtimerRemain = backtimer->remainingTime();
     backtimer->stop();
-    for (int i = 0; i < memberberries.size(); i++){
+    /*for (int i = 0; i < memberberries.size(); i++){
         memberberries[i]->stopTimer();
-    }
+    }*/
 }
 
 void Eric::resumeTimer(){
+    emit resumed();
     if(singleshottimerRemain >= 0){
         singleshottimer->start(singleshottimerRemain);
         qDebug() << "singleshottimerRemain = " << singleshottimerRemain;

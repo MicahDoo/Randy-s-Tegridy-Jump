@@ -13,14 +13,14 @@ class MemberBerry: public QObject, public QGraphicsPixmapItem{
     Q_OBJECT
 public:
     MemberBerry(sides side, QGraphicsItem *parent);
-    void stopTimer();
-    void resumeTimer();
 
 public slots:
     void fly();
     void swell();
     void stopSound(QMediaPlayer* player);
     void flipping();
+    void stopTimer();
+    void resumeTimer();
 
 private:
     QTimer *timer;

@@ -9,10 +9,10 @@ class Monster: public QObject, public QGraphicsPixmapItem{
     Q_OBJECT;
 public:
     Monster(QGraphicsItem *parent);
-    void stopTimer();
-    void resumeTimer();
 public slots:
     void move();
+    void stopTimer();
+    void resumeTimer();
 private:
     enum monstertypes{satan, manbearpig};
     monstertypes monstertype;

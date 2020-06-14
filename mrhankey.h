@@ -8,10 +8,10 @@ class MrHankey: public QObject, public QGraphicsPixmapItem{
     Q_OBJECT;
 public:
     MrHankey();
-    void stopTimer();
-    void resumeTimer();
 public slots:
     void fly();
+    void stopTimer();
+    void resumeTimer();
 private:
     QTimer *timer;
 

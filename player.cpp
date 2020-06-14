@@ -43,6 +43,16 @@ bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPla
     connect(angeltimer, SIGNAL(timeout()), this, SLOT(angelFade()));
     connect(decrouchtimer, SIGNAL(timeout()), this, SLOT(decrouch()));
     connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
+    connect(this, SIGNAL(paused()), verticaltimer, SLOT(stop()));
+    connect(this, SIGNAL(paused()), backgroundtimer, SLOT(stop()));
+    connect(this, SIGNAL(paused()), fadetimer, SLOT(stop()));
+    connect(this, SIGNAL(paused()), weedtimer, SLOT(stop()));
+    connect(this, SIGNAL(paused()), angeltimer, SLOT(stop()));
+    connect(this, SIGNAL(resumed()), verticaltimer, SLOT(start()));
+    connect(this, SIGNAL(resumed()), backgroundtimer, SLOT(start()));
+    connect(this, SIGNAL(resumed()), fadetimer, SLOT(start()));
+    connect(this, SIGNAL(resumed()), weedtimer, SLOT(start()));
+    connect(this, SIGNAL(resumed()), angeltimer, SLOT(start()));
 
     // background set up
 
@@ -112,6 +122,9 @@ bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPla
         if(rand()%ELASTIC_PROB == 1){
             platforms.push_back(new Elastic(commonParent));
             platforms[i]->setPos(rand()%(SCREEN_WIDTH-100), BOTTOM - SPACING * i);
+            connect(platforms[i], SIGNAL(spring()), this, SLOT(setElasticMode()));
+            connect(this, SIGNAL(paused()), platforms[i], SLOT(stopTimer()));
+            connect(this, SIGNAL(resumed()), platforms[i], SLOT(resumeTimer()));
         }
         else{
             platforms.push_back(new Normal(commonParent));
@@ -154,6 +167,8 @@ void Player::keyPressEvent(QKeyEvent *event){
             MrHankey *mrhankey = new MrHankey();
             mrhankey->setPos(x()-30,y());
             scene()->addItem(mrhankey);
+            connect(this, SIGNAL(paused()), mrhankey, SLOT(stopTimer()));
+            connect(this, SIGNAL(resumed()), mrhankey, SLOT(resumeTimer()));
         }
         break;
     }
@@ -185,63 +200,8 @@ void Player::keyPressEvent(QKeyEvent *event){
         }
         break;
     case Qt::Key_Space:
-        if(verticaltimer->isActive()){
-            verticaltimer->stop();
-            backgroundtimer->stop();
-            fadetimer->stop();
-            weedtimer->stop();
-            angeltimer->stop();
-            weedRemain = weedlasttimer->remainingTime();
-            weedlasttimer->stop();
-            butterflyRemain = butterflylasttimer->remainingTime();
-            butterflylasttimer->stop();
-            angelRemain = angellasttimer->remainingTime();
-            angellasttimer->stop();
-            decrouchRemain = decrouchtimer->remainingTime();
-            decrouchtimer->stop();
-            for(int i = 0; i < platforms.size(); ++i){
-                platforms[i]->stopTimer();
-            }
-            for(int i = 0; i < monsters.size(); ++i){
-                monsters[i]->stopTimer();
-            }
-            for(int i = 0; i < erics.size(); ++i){
-                erics[i]->stopTimer();
-            }
-            pause = true;
-        }
-        else{
-            verticaltimer->start(1000.0/FPS);
-            backgroundtimer->start(1000.0/FPS);
-            fadetimer->start(1000.0/FPS);
-            weedtimer->start(1000.0/FPS);
-            angeltimer->start(1000.0/FPS);
-            if(weedRemain >= 0){
-                weedlasttimer -> start(weedRemain);
-                weedRemain = -1;
-            }
-            if(butterflyRemain >= 0){
-                butterflylasttimer -> start(butterflyRemain);
-                butterflyRemain = -1;
-            }
-            if(angelRemain >= 0){
-                angellasttimer -> start(angelRemain);
-                angelRemain = -1;
-            }
-            if(decrouchRemain >= 0){
-                decrouchtimer -> start(decrouchRemain);
-                decrouchRemain = -1;
-            }
-            for(int i = 0; i < platforms.size(); ++i){
-                platforms[i]->resumeTimer();
-            }
-            for(int i = 0; i < monsters.size(); ++i){
-                monsters[i]->resumeTimer();
-            }
-            for(int i = 0; i < erics.size(); ++i){
-                erics[i]->resumeTimer();
-            }
-            pause = false;
+        if(!flippingMode){
+            setPause(!pause);
         }
         break;
     }
@@ -333,6 +293,7 @@ void Player::checkFlipMode(){
             pauseandfliptimer->start(1000/FPS);
             setPause(true);
             flipMode = false;
+            flippingMode = true;
         }
     }
 }
@@ -467,8 +428,9 @@ void Player::smokeFade(){
 
 }
 
-void Player::setElasticMode(bool a){
-    elasticMode = a;
+void Player::setElasticMode(){
+    elasticMode = true;
+    BOTTOM = 1000;
 }
 
 void Player::setGRAVITY(double number){
@@ -611,11 +573,17 @@ void Player::checkNewElements(){
         if(rand()%ELASTIC_PROB == 1){
             platforms.push_back(new Elastic(commonParent));
             platforms[platforms.size()-1]->setPos(rand()%(SCREEN_WIDTH-100), 0 - 10 - commonParent->mapToScene(0,0).y());
+            connect(platforms[platforms.size()-1], SIGNAL(spring()), this, SLOT(setElasticMode()));
+            connect(this, SIGNAL(paused()), platforms[platforms.size()-1], SLOT(stopTimer()));
+            connect(this, SIGNAL(resumed()), platforms[platforms.size()-1], SLOT(resumeTimer()));
+
         }
         else{
             if(rand()%HORI_PROB == 1){
                 platforms.push_back(new Horizontal(commonParent));
                 platforms[platforms.size()-1]->setPos(rand()%(SCREEN_WIDTH-100), 0 - 10 - commonParent->mapToScene(0,0).y());
+                connect(this, SIGNAL(paused()), platforms[platforms.size()-1], SLOT(stopTimer()));
+                connect(this, SIGNAL(resumed()), platforms[platforms.size()-1], SLOT(resumeTimer()));
             }
             else{
                 platforms.push_back(new Normal(commonParent));
@@ -635,7 +603,8 @@ void Player::checkNewElements(){
                 //qDebug() << "monster created";
                 monsters.push_back(new Monster(commonParent));
                 monsters[monsters.size()-1]->setPos(rand()%(SCREEN_WIDTH-100) ,platforms[platforms.size()-1]->y()-MONSTER_HEIGHT-10);
-                //scene()->addItem(monsters[monsters.size()-1]);
+                connect(this, SIGNAL(paused()), monsters[monsters.size()-1], SLOT(stopTimer()));
+                connect(this, SIGNAL(resumed()), monsters[monsters.size()-1], SLOT(resumeTimer()));
             }
             else if(rand()%ERIC_PROB == 5){
                 //qDebug() << "eric appeared";
@@ -647,6 +616,8 @@ void Player::checkNewElements(){
                     erics.push_back(new Eric(rightSide, commonParent));
                     erics[erics.size()-1]->setPos(SCREEN_WIDTH+10-ERIC_SIZE, platforms[platforms.size()-1]->y()-ERIC_SIZE);
                 }
+                connect(this, SIGNAL(paused()), erics[erics.size()-1], SLOT(stopTimer()));
+                connect(this, SIGNAL(resumed()), erics[erics.size()-1], SLOT(resumeTimer()));
                 //scene()->addItem(erics[erics.size()-1]);
             }
             else if(rand()%KENNY_PROB == 8){
@@ -691,7 +662,7 @@ void Player::checkBounce(){
                             ACC_ITEM = verticalItemSpeed/springTime;
                         }
                     }else{
-                        qDebug() << "jump starts from y() = " << y();
+                        //qDebug() << "jump starts from y() = " << y();
                         verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
                         ACC_PLAYER = verticalSpeed/jumpTime;
                         if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
@@ -978,11 +949,7 @@ void Player::setFlipEndDistance(int num){
 void Player::setPause(bool a){
     pause = a;
     if(a){
-        verticaltimer->stop();
-        backgroundtimer->stop();
-        fadetimer->stop();
-        weedtimer->stop();
-        angeltimer->stop();
+        emit paused();
         weedRemain = weedlasttimer->remainingTime();
         weedlasttimer->stop();
         butterflyRemain = butterflylasttimer->remainingTime();
@@ -991,22 +958,10 @@ void Player::setPause(bool a){
         angellasttimer->stop();
         decrouchRemain = decrouchtimer->remainingTime();
         decrouchtimer->stop();
-        for(int i = 0; i < platforms.size(); ++i){
-            platforms[i]->stopTimer();
-        }
-        for(int i = 0; i < monsters.size(); ++i){
-            monsters[i]->stopTimer();
-        }
-        for(int i = 0; i < erics.size(); ++i){
-            erics[i]->stopTimer();
-        }
+        pause = true;
     }
     else{
-        verticaltimer->start(1000.0/FPS);
-        backgroundtimer->start(1000.0/FPS);
-        fadetimer->start(1000.0/FPS);
-        weedtimer->start(1000.0/FPS);
-        angeltimer->start(1000.0/FPS);
+        emit resumed();
         if(weedRemain >= 0){
             weedlasttimer -> start(weedRemain);
             weedRemain = -1;
@@ -1023,15 +978,7 @@ void Player::setPause(bool a){
             decrouchtimer -> start(decrouchRemain);
             decrouchRemain = -1;
         }
-        for(int i = 0; i < platforms.size(); ++i){
-            platforms[i]->resumeTimer();
-        }
-        for(int i = 0; i < monsters.size(); ++i){
-            monsters[i]->resumeTimer();
-        }
-        for(int i = 0; i < erics.size(); ++i){
-            erics[i]->resumeTimer();
-        }
+        pause = false;
     }
 }
 
@@ -1054,6 +1001,7 @@ void Player::flipping(){
         scene()->views()[0]->resetTransform();
         pauseandfliptimer->stop();
         setPause(false);
+        flippingMode = false;
     }
 }
 
@@ -1077,4 +1025,8 @@ void Player::setOrientation(directions d){
             randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
         }
     }
+}
+
+void Player::setFlippingMode(bool a){
+    flippingMode = a;
 }

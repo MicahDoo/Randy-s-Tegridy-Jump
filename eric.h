@@ -12,13 +12,16 @@ class Eric: public QObject, public QGraphicsPixmapItem{
 public:
     Eric(sides s, QGraphicsItem *parent);
     QVector<MemberBerry*> * getMemberberries();
-    void stopTimer();
-    void resumeTimer();
 
 public slots:
     void ready();
     void shoot();
     void back();
+    void stopTimer();
+    void resumeTimer();
+signals:
+    void paused();
+    void resumed();
 private:
     QTimer *timer;
     QTimer *singleshottimer;

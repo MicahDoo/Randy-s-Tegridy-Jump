@@ -48,7 +48,6 @@ public:
     void setBOTTOM(double number);
     void setWeedMode();
     void setFail();
-    void setElasticMode(bool a);
     void setAngelMode();
     void setLastBounce(QGraphicsItem * item);
     void setFlipMode(bool a);
@@ -58,6 +57,7 @@ public:
     //set attributes
     void setGRAVITY(double number);
     void setOrientation(directions d);
+    void setFlippingMode(bool a);
 
     void checkDelete();
     void checkNewElements();
@@ -93,6 +93,11 @@ public slots:
     void angelOut();
     void angelFade();
     void flipping();
+    void setElasticMode();
+
+signals:
+    void paused();
+    void resumed();
 
 private:
 
@@ -129,6 +134,7 @@ private:
     bool angelMode = false;
     bool darkWellMode = false;
     bool flipMode = false;
+    bool flippingMode = false;
 
     // player attributes
     double BOTTOM = SCREEN_HEIGHT - 50.0; // don't let items be deleted above this height
