@@ -89,7 +89,7 @@ bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPla
     kenny -> setOpacity(0.0);
 
     QPainterPath path;
-    path.addRect(-SCREEN_WIDTH-100, -2000, SCREEN_WIDTH*2+300, 3000);
+    path.addRect(-SCREEN_WIDTH-100, -2500, SCREEN_WIDTH*2+300, 4000);
     QRadialGradient alphaGradient(22.5, 15, 150);
     alphaGradient.setColorAt(0.0, Qt::transparent);
     alphaGradient.setColorAt(0.1, Qt::transparent);
@@ -156,6 +156,11 @@ bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPla
     gameoverwrapup->setFont(QFont("comic sans ms", 20));
     gameoverwrapup->setPos(100,1480);
     gameoverwrapup->setZValue(6);
+
+    // set transform
+
+    transform.scale(-1,1);
+    transform.translate(-PLAYER_WIDTH, 0);
 }
 
 void Player::keyPressEvent(QKeyEvent *event){
@@ -194,7 +199,6 @@ void Player::keyPressEvent(QKeyEvent *event){
                     movetimer->start(1000.0/FPS);
                 }
                 setOrientation(directions::right);
-                //setTransform(QTransform::fromScale(-1, 1));
                 direction = directions::right;
             }
         }
@@ -302,7 +306,7 @@ void Player::checkDarkWell(){
     if(travelDistance >= nextDarkWellLocation){
         darkWell = new QGraphicsPixmapItem(commonParent);
         darkWell->setPixmap(QPixmap(":/Resource/Red Wall.jpg").scaled(SCREEN_WIDTH+10, WELL_LENGTH));
-        darkWell->setPos(0,0 - commonParent->mapToScene(0,0).y()-WELL_LENGTH);
+        darkWell->setPos(0, 0 - commonParent->mapToScene(0,0).y()-WELL_LENGTH);
         nextDarkWellLocation = (travelDistance + WELL_LENGTH + WELL_INTERVAL + rand()%10000);
         darkWellMode = true;
     }
@@ -312,7 +316,6 @@ void Player::checkDarkWell(){
         if(darkWell->mapToScene(0,0).y()<0.0){
             if(darkness->opacity()<1.0){
                 darkness->setOpacity((darkWell->mapToScene(0,0).y()+WELL_LENGTH)/SCREEN_HEIGHT);
-                //qDebug() << "darkwell depth" << darkWell->mapToScene(0,0).y()+WELL_LENGTH;
                 shadow->setColor(QColor(0, 0, 0,255*(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
             }
         }
@@ -343,6 +346,9 @@ QGraphicsTextItem* Player::getScore(){
 }
 
 void Player::decrouch(){
+    if(!rocketMode){
+        randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH,PLAYER_HEIGHT));
+    }
     setOrientation(direction);
 }
 
@@ -377,6 +383,7 @@ void Player::butterflyDead(){
     verticalSpeed = 2 * 50/(jumpTime/2.0);
     ACC_PLAYER = verticalSpeed/(jumpTime/2.0);
     rocketMode = false;
+    randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH,PLAYER_HEIGHT));
     setOrientation(direction);
 }
 
@@ -388,6 +395,7 @@ void Player::setRocketMode(bool a){
     randy->setOffset(-30,-20);
     rocketMode = a;
     downMode = false;
+    randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
     setOrientation(direction);
     butterflylasttimer->start(PROPS_DURATION);
     verticalSpeed = -(2.0*(y()-MAX_HEIGHT-50)/jumpTime);
@@ -642,13 +650,8 @@ void Player::checkBounce(){
         for(int i = 0; i < platforms.size(); ++i){
             if(mapFromItem(platforms[i], 0, 0).x()<PLAYER_WIDTH && mapFromItem(platforms[i], 0, 0).x() > -PLATFORM_WIDTH)
                 if(mapFromItem(platforms[i], 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(platforms[i], 0, 0).y() <= PLAYER_HEIGHT - verticalSpeed){
-                    //qDebug() << "jump!";
-                    if(direction == directions::right){
-                        randy->setPixmap(QPixmap(":/Resource/RandyCrouchedRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                    }
-                    else{
-                        randy->setPixmap(QPixmap(":/Resource/RandyCrouchedLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                    }
+                    randy->setPixmap(QPixmap(":/Resource/RandyCrouchedLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
+                    setOrientation(direction);
                     decrouchtimer->start(200);
                     platforms[i]->response();
                     setY(platforms[i]->mapToScene(0,0).y() - PLAYER_HEIGHT);
@@ -1011,19 +1014,9 @@ bool Player::isFail(){
 
 void Player::setOrientation(directions d){
     if(d == directions::left){
-        if(rocketMode == true){
-            randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
-        }
-        else{
-            randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-        }
+        randy->resetTransform();
     }else{
-        if(rocketMode == true){
-            randy->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
-        }
-        else{
-            randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-        }
+        randy->setTransform(transform);
     }
 }
 

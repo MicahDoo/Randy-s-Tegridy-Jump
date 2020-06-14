@@ -186,6 +186,8 @@ private:
     QMediaPlayer *kennyTalk;
     QMediaPlayer *angelSound;
 
+    QTransform transform;
+
 public:
     ~Player();
 };
