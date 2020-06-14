@@ -19,120 +19,67 @@
 #include "eric.h"
 
 
-Player::Player(QGraphicsScene * scene){
+Player::Player(QGraphicsScene * scene) : verticaltimer(new QTimer(this)), movetimer(new QTimer(this)), backgroundtimer(new QTimer(this)), fadetimer(new QTimer(this)), weedtimer(new QTimer(this)), angeltimer(new QTimer(this)), weedlasttimer(new QTimer(this)), butterflylasttimer(new QTimer(this)), angellasttimer(new QTimer(this)), decrouchtimer(new QTimer(this)), pauseandfliptimer(new QTimer(this)),
+commonParent(new QGraphicsRectItem()), lastBounce(new QGraphicsRectItem(commonParent)), tree(new QGraphicsPixmapItem()), mountains(new QGraphicsPixmapItem()), randy(new QGraphicsPixmapItem(this)), smoke(new QGraphicsPixmapItem(this)), kenny(new QGraphicsPixmapItem(this)), darkness(new QGraphicsPathItem(this)), shadow(new QGraphicsDropShadowEffect(this)), darkWell(new QGraphicsPixmapItem(commonParent)),
+score(new QGraphicsTextItem()), gameover(new QGraphicsTextItem(QString("Game Over!"))), gameoverwrapup(new QGraphicsTextItem()),
+bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPlayer(this, QMediaPlayer::LowLatency)), kennyTalk(new QMediaPlayer(this, QMediaPlayer::LowLatency)), angelSound(new QMediaPlayer(this, QMediaPlayer::LowLatency)){
+
+    // basic configuration
+
     scene->addItem(this);
     setZValue(CHARACTER_LAYER);
-    movetimer = new QTimer();
-    connect(movetimer,SIGNAL(timeout()),this,SLOT(checkHorizontalMovement()));
-    verticaltimer = new QTimer();
-    connect(verticaltimer,SIGNAL(timeout()),this,SLOT(checkVerticalMovement()));
-    backgroundtimer = new QTimer();
-    connect(backgroundtimer,SIGNAL(timeout()), this, SLOT(checkBackground()));
-    backgroundtimer->start(1000.0/FPS);
-    mountains = new QGraphicsPixmapItem();
-    mountains->setPixmap(QPixmap(":/Resource/Mountains.png").scaled(700,400));
-    mountains->pixmap().setDevicePixelRatio(-5);
-    mountains->setPos(-50,400);
-    mountains->setZValue(MOUNTAIN_LAYER);
-    tree = new QGraphicsPixmapItem();
-    tree->setPixmap(QPixmap(":/Resource/Tree.png").scaled(200,650));
-    tree->pixmap().setDevicePixelRatio(-5);
-    tree->setPos(rand()%400+50, 100);
-    tree->setZValue(TREE_LAYER);
+    scene->addItem(commonParent);
+    commonParent->setZValue(PLATFORM_LAYER);
 
-    randy = new QGraphicsPixmapItem(this);
+    // all connects
+
+    connect(movetimer,SIGNAL(timeout()),this,SLOT(checkHorizontalMovement()));
+    connect(verticaltimer,SIGNAL(timeout()),this,SLOT(checkVerticalMovement()));
+    connect(backgroundtimer,SIGNAL(timeout()), this, SLOT(checkBackground()));
+    connect(weedlasttimer, SIGNAL(timeout()), this, SLOT(weedOut()));
+    connect(weedtimer, SIGNAL(timeout()), this, SLOT(smokeFade()));
+    connect(butterflylasttimer, SIGNAL(timeout()), this, SLOT(butterflyDead()));
+    connect(angellasttimer,SIGNAL(timeout()),this,SLOT(angelOut()));
+    connect(angeltimer, SIGNAL(timeout()), this, SLOT(angelFade()));
+    connect(decrouchtimer, SIGNAL(timeout()), this, SLOT(decrouch()));
+    connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
+
+    // background set up
+
+    backgroundtimer->start(1000.0/FPS);
+    mountains->setPixmap(QPixmap(":/Resource/Mountains.png").scaled(SCREEN_HEIGHT,(SCREEN_WIDTH-100)));
+    mountains->setPos(-50,SCREEN_HEIGHT-300);
+    mountains->setZValue(MOUNTAIN_LAYER);
+    tree->setPixmap(QPixmap(":/Resource/Tree.png").scaled(200,650));
+    tree->setPos(rand()%(SCREEN_WIDTH-100)+50, SCREEN_HEIGHT - 600);
+    tree->setZValue(TREE_LAYER);
+    QMediaPlayer *start = new QMediaPlayer(nullptr, QMediaPlayer::LowLatency);
+    start->setMedia(QUrl("qrc:/Resource/Start.mp3"));
+    start->setVolume(30);
+    start->play();
+    QTimer::singleShot(3000, this, SLOT(startBGM()));
+
+    // sound setup
+
+    killedKenny->setMedia(QUrl("qrc:/Resource/YouBastard.mp3"));
+    killedKenny->setVolume(30);
+    kennyTalk->setMedia(QUrl("qrc:/Resource/AngelKenny.mp3"));
+    angelSound->setMedia(QUrl("qrc:/Resource/Heavens.mp3"));
+
+    // player elements set up
+
     randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-    smoke = new QGraphicsPixmapItem(this);
     smoke ->setPixmap(QPixmap(":/Resource/smoke.png").scaled(200,200));
     smoke -> setPos(-80,-70);
     smoke -> setZValue(-1);
     smoke -> setOpacity(0.0);
-    kenny = new QGraphicsPixmapItem(this);
     kenny ->setPixmap(QPixmap(":/Resource/AngelKenny.png").scaled(200,150));
     kenny->setPos(-70, -40);
     kenny->setZValue(-11);
     kenny -> setOpacity(0.0);
-    weedtimer= new QTimer();
-    connect(weedtimer, SIGNAL(timeout()), this, SLOT(smokeFade()));
-    angeltimer = new QTimer();
-    weedlasttimer = new QTimer();
-    weedlasttimer->setSingleShot(true);
-    connect(weedlasttimer, SIGNAL(timeout()), this, SLOT(weedOut()));
-    butterflylasttimer = new QTimer();
-    butterflylasttimer->setSingleShot(true);
-    connect(butterflylasttimer, SIGNAL(timeout()), this, SLOT(butterflyDead()));
-    angellasttimer = new QTimer();
-    angellasttimer->setSingleShot(true);
-    connect(angellasttimer,SIGNAL(timeout()),this,SLOT(angelOut()));
-    connect(angeltimer, SIGNAL(timeout()), this, SLOT(angelFade()));
-    decrouchtimer = new QTimer();
-    decrouchtimer ->setSingleShot(true);
-    connect(decrouchtimer, SIGNAL(timeout()), this, SLOT(decrouch()));
 
-    verticaltimer->start(1000.0/FPS);
-
-    commonParent = new QGraphicsRectItem();
-    scene->addItem(commonParent);
-    //commonParent->setPos(0,0); //this line will make player it's child
-    commonParent->setZValue(PLATFORM_LAYER);
-
-    platforms.push_back(new Normal(commonParent));
-    int n = rand()%400;
-    platforms[0]->setPos(n, BOTTOM);
-    setPos(n, BOTTOM - PLAYER_HEIGHT);
-
-    for(int i = 1; i < 10; ++i){
-        if(rand()%ELASTIC_PROB == 1){
-            platforms.push_back(new Elastic(commonParent));
-            platforms[i]->setPos(rand()%400, BOTTOM - SPACING * i);
-        }
-        else{
-            platforms.push_back(new Normal(commonParent));
-            platforms[i]->setPos(rand()%400, BOTTOM - SPACING * i);
-            if(rand()%WING_PROB == 2){
-                props.push_back(new Wings(commonParent));
-                props[props.size()-1]->setPos(platforms[i]->x(),platforms[i]->y()-15);
-            }
-            else if(rand()%WEED_PROB == 3){
-                props.push_back(new Weed(commonParent));
-                props[props.size()-1]->setPos(platforms[i]->x()+20,platforms[i]->y()-50);
-            }
-        }
-    }
-
-    lastBounce = platforms[0];
-
-    score = new QGraphicsTextItem();
-    score->setPlainText(QString::number(0));
-    score->setDefaultTextColor(Qt::blue);
-    score->setFont(QFont("courier", 20));
-    score->setZValue(6);
-    gameover = new QGraphicsTextItem();
-    gameover->setPlainText(QString("Game Over!"));
-    gameover->setDefaultTextColor(Qt::magenta);
-    gameover->setFont(QFont("impact", 40));
-    gameover->setPos(100,1400);
-    gameover->setZValue(6);
-    gameoverwrapup = new QGraphicsTextItem();
-    gameoverwrapup->setDefaultTextColor(Qt::darkGreen);
-    gameoverwrapup->setFont(QFont("comic sans ms", 20));
-    gameoverwrapup->setPos(100,1480);
-    gameoverwrapup->setZValue(6);
-
-    fadetimer = new QTimer();
-
-    QMediaPlayer *start = new QMediaPlayer();
-    start->setMedia(QUrl("qrc:/Resource/Start.mp3"));
-    start->setVolume(30);
-    start->play();
-
-    bgm = new QMediaPlayer();
-
-    QTimer::singleShot(3000, this, SLOT(startBGM()));
-
-    darkness = new QGraphicsPathItem(this);
     QPainterPath path;
-    path.addRect(-600, -2000, 1200, 3000);
+    path.addRect(-SCREEN_WIDTH-100, -2000, SCREEN_WIDTH*2+300, 3000);
     QRadialGradient alphaGradient(22.5, 15, 150);
     alphaGradient.setColorAt(0.0, Qt::transparent);
     alphaGradient.setColorAt(0.1, Qt::transparent);
@@ -140,24 +87,62 @@ Player::Player(QGraphicsScene * scene){
     darkness->setBrush(alphaGradient);
     darkness->setPath(path);
     darkness->setOpacity(0);
-    shadow = new QGraphicsDropShadowEffect();
     shadow->setOffset(10,10);
     shadow->setColor(QColor(255,255,255,0));
     //shadow->setBlurRadius(5);
     randy->setGraphicsEffect(shadow);
 
-    nextDarkWellLocation = 3000;
 
-    pauseandfliptimer = new QTimer();
-    connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
+    // timer setup
 
-    killedKenny = new QMediaPlayer();
-    killedKenny->setMedia(QUrl("qrc:/Resource/YouBastard.mp3"));
-    killedKenny->setVolume(30);
-    kennyTalk = new QMediaPlayer();
-    kennyTalk->setMedia(QUrl("qrc:/Resource/AngelKenny.mp3"));
-    angelSound = new QMediaPlayer();
-    angelSound->setMedia(QUrl("qrc:/Resource/Heavens.mp3"));
+    weedlasttimer->setSingleShot(true);
+    butterflylasttimer->setSingleShot(true);
+    angellasttimer->setSingleShot(true);
+    decrouchtimer ->setSingleShot(true);
+    verticaltimer->start(1000.0/FPS);
+
+    //plaform arrangement
+
+    platforms.push_back(new Normal(commonParent));
+    int n = rand()%(SCREEN_WIDTH-100);
+    platforms[0]->setPos(n, BOTTOM);
+    setPos(n, BOTTOM - PLAYER_HEIGHT);  // player starts on top of the first platform
+
+    for(int i = 1; i < SCREEN_HEIGHT/SPACING; ++i){
+        if(rand()%ELASTIC_PROB == 1){
+            platforms.push_back(new Elastic(commonParent));
+            platforms[i]->setPos(rand()%(SCREEN_WIDTH-100), BOTTOM - SPACING * i);
+        }
+        else{
+            platforms.push_back(new Normal(commonParent));
+            platforms[i]->setPos(rand()%(SCREEN_WIDTH-100), BOTTOM - SPACING * i);
+            if(rand()%WING_PROB == 2){
+                props.push_back(new Wings(platforms[platforms.size()-1]));
+                props[props.size()-1]->setPos(0,-15);
+            }
+            else if(rand()%WEED_PROB == 3){
+                props.push_back(new Weed(platforms[platforms.size()-1]));
+                props[props.size()-1]->setPos(20,-50);
+            }
+        }
+    }
+    lastBounce->setX(0);
+    lastBounce->setY(platforms[0]->y());
+
+    // text configuration
+
+    score->setPlainText(QString::number(0));
+    score->setDefaultTextColor(Qt::blue);
+    score->setFont(QFont("courier", 20));
+    score->setZValue(6);
+    gameover->setDefaultTextColor(Qt::magenta);
+    gameover->setFont(QFont("impact", 40));
+    gameover->setPos(100,1400);
+    gameover->setZValue(6);
+    gameoverwrapup->setDefaultTextColor(Qt::darkGreen);
+    gameoverwrapup->setFont(QFont("comic sans ms", 20));
+    gameoverwrapup->setPos(100,1480);
+    gameoverwrapup->setZValue(6);
 }
 
 void Player::keyPressEvent(QKeyEvent *event){
@@ -168,7 +153,6 @@ void Player::keyPressEvent(QKeyEvent *event){
         if(pause == false){
             MrHankey *mrhankey = new MrHankey();
             mrhankey->setPos(x()-30,y());
-            //mrhankey->setPos(x()-30,y());
             scene()->addItem(mrhankey);
         }
         break;
@@ -179,17 +163,10 @@ void Player::keyPressEvent(QKeyEvent *event){
         if(pause == false){
             if(leftKeyHeldDown == false){
                 leftKeyHeldDown = true;
-                //qDebug() << "left" << leftKeyHeldDown;
                 if(!movetimer->isActive()){
                     movetimer->start(1000/FPS);
                 }
-                if(rocketMode == true){
-                    randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
-                }
-                else{
-                    randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                }
-                //setTransform(QTransform::fromScale(1, 1));
+                setOrientation(directions::left);
                 direction = directions::left;
             }
         }
@@ -198,17 +175,11 @@ void Player::keyPressEvent(QKeyEvent *event){
         if(pause == false){
             if(rightKeyHeldDown == false){
                 rightKeyHeldDown = true;
-                //qDebug() << "right" << rightKeyHeldDown;
                 if(!movetimer->isActive()){
                     movetimer->start(1000.0/FPS);
                 }
-                if(rocketMode == true){
-                    randy->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
-                }
-                else{
-                    randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                }
-                //setTransform(QTransform::fromScale(1, 1));
+                setOrientation(directions::right);
+                //setTransform(QTransform::fromScale(-1, 1));
                 direction = directions::right;
             }
         }
@@ -281,24 +252,12 @@ void Player::keyReleaseEvent(QKeyEvent *event){
         if(leftKeyHeldDown == true && rightKeyHeldDown == true ){
             if(event->key() == Qt::Key_Left){
                 direction = directions::right;
-                if(rocketMode == true){
-                    randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
-                }
-                else{
-                    randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                }
+                setOrientation(directions::right);
                 leftKeyHeldDown = false;
             }
             else{
                 direction = directions::left;
-                if(rocketMode == true){
-                    randy->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
-                    pixmap().setDevicePixelRatio(-5);
-                }
-                else{
-                    randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-                    pixmap().setDevicePixelRatio(-5);
-                }
+                setOrientation(directions::left);
                 rightKeyHeldDown = false;
             }
         }
@@ -331,7 +290,7 @@ void Player::checkHorizontalMovement(){
 }
 
 void Player::checkVerticalMovement(){
-    //if(processing == false){
+    if(processing == false){
         processing = true;
         //qDebug() << "vertical";
 
@@ -350,7 +309,7 @@ void Player::checkVerticalMovement(){
             normalMove();
             checkFail();
             if(fail == true){
-                BOTTOM = 650.0;
+                BOTTOM = SCREEN_HEIGHT - 50.0;
                 endGame();
             }
             else{
@@ -363,7 +322,7 @@ void Player::checkVerticalMovement(){
         }
 
         processing = false;
-    //}
+    }
 }
 
 void Player::checkFlipMode(){
@@ -381,7 +340,7 @@ void Player::checkFlipMode(){
 void Player::checkDarkWell(){
     if(travelDistance >= nextDarkWellLocation){
         darkWell = new QGraphicsPixmapItem(commonParent);
-        darkWell->setPixmap(QPixmap(":/Resource/Red Wall.jpg").scaled(520, WELL_LENGTH));
+        darkWell->setPixmap(QPixmap(":/Resource/Red Wall.jpg").scaled(SCREEN_WIDTH+10, WELL_LENGTH));
         darkWell->setPos(0,0 - commonParent->mapToScene(0,0).y()-WELL_LENGTH);
         nextDarkWellLocation = (travelDistance + WELL_LENGTH + WELL_INTERVAL + rand()%10000);
         darkWellMode = true;
@@ -392,7 +351,7 @@ void Player::checkDarkWell(){
         if(darkWell->mapToScene(0,0).y()<0.0){
             if(darkness->opacity()<1.0){
                 darkness->setOpacity((darkWell->mapToScene(0,0).y()+WELL_LENGTH)/SCREEN_HEIGHT);
-                qDebug() << "darkwell depth" << darkWell->mapToScene(0,0).y()+WELL_LENGTH;
+                //qDebug() << "darkwell depth" << darkWell->mapToScene(0,0).y()+WELL_LENGTH;
                 shadow->setColor(QColor(0, 0, 0,255*(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
             }
         }
@@ -423,26 +382,7 @@ QGraphicsTextItem* Player::getScore(){
 }
 
 void Player::decrouch(){
-    if(direction == directions::right){
-        if(rocketMode == true){
-            randy->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
-            pixmap().setDevicePixelRatio(-5);
-        }
-        else{
-            randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-            pixmap().setDevicePixelRatio(-5);
-        }
-    }
-    else{
-        if(rocketMode == true){
-            randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
-            pixmap().setDevicePixelRatio(-5);
-        }
-        else{
-            randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-            pixmap().setDevicePixelRatio(-5);
-        }
-    }
+    setOrientation(direction);
 }
 
 void Player::checkBackground(){
@@ -450,10 +390,10 @@ void Player::checkBackground(){
         mountains->moveBy(0,1);
         ++mountaincount;
     }
-    /*if(int n = travelDistance - treecount * 10 > 0){
+    if(int n = travelDistance - treecount * 10 > 0){
         tree->moveBy(0,(n+10)/10);
         ++treecount;
-    }*/
+    }
 }
 
 QGraphicsPixmapItem * Player::getTree(){
@@ -472,17 +412,11 @@ void Player::setBOTTOM(double number){
 }
 
 void Player::butterflyDead(){
-    //qDebug()<<"butterfly dead";
-    if(direction == directions::left){
-        randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-        ACC_PLAYER = DEFAULT_GRAVITY;
-        rocketMode = false;
-    }
-    else{
-        randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-        ACC_PLAYER = DEFAULT_GRAVITY;
-        rocketMode = false;
-    }
+    randy->setOffset(0,0);
+    verticalSpeed = 2 * 50/(jumpTime/2.0);
+    ACC_PLAYER = verticalSpeed/(jumpTime/2.0);
+    rocketMode = false;
+    setOrientation(direction);
 }
 
 directions Player::getDirection(){
@@ -490,8 +424,13 @@ directions Player::getDirection(){
 }
 
 void Player::setRocketMode(bool a){
+    randy->setOffset(-30,-20);
     rocketMode = a;
+    downMode = false;
+    setOrientation(direction);
     butterflylasttimer->start(PROPS_DURATION);
+    verticalSpeed = -(2.0*(y()-MAX_HEIGHT-50)/jumpTime);
+    ACC_PLAYER = verticalSpeed/jumpTime;
 }
 
 void Player::setDownMode(bool a){
@@ -511,14 +450,10 @@ void Player::setWeedMode(){
     }
 }
 
-void Player::setVerticalSpeed(double v){
-    verticalSpeed = v;
-}
-
 void Player::weedOut(){
-    BOTTOM = 650.0;
+    BOTTOM = SCREEN_HEIGHT - 50.0;
     weedMode = false;
-    ACC_PLAYER = DEFAULT_GRAVITY;
+    //ACC_PLAYER = DEFAULT_GRAVITY;
     weedtimer->start(1000/FPS);
 }
 
@@ -546,9 +481,15 @@ QVector<Monster*> * Player::getMonsters(){
 
 void Player::setFail(){
     if(fail == false){
+        for(int i = 0; i < platforms.size(); ++i){
+            if(platforms[i]->mapToScene(0,0).y() > SCREEN_HEIGHT){
+                //platforms[i]->setScale(0);
+            }
+            else{
+                break;
+            }
+        }
         fail = true;
-        //randy->scene()->views()[0]->scale(1,-1);
-        //randy->scene()->views()[0]->translate(0, -700);
         scene()->views()[0]->resetTransform();
         gameoverwrapup->setPlainText(QString("Your score: ")+QString::number(travelDistance)+QString("\nPress enter to restart"));
         QMediaPlayer *gameoversound = new QMediaPlayer();
@@ -588,7 +529,6 @@ void Player::startBGM(){
     }
     playlist->setPlaybackMode(QMediaPlaylist::Loop);
 
-    qDebug()<<"playing bgm";
     bgm -> setPlaylist(playlist);
     bgm -> setVolume(30);
     bgm -> play();
@@ -602,7 +542,6 @@ void Player::stopBGM(){
 void Player::fadeOutBGM(){
     if(bgm->volume() > 0){
         bgm->setVolume(bgm->volume()-1);
-        //qDebug() << "volume =" << bgm->volume();
     }
     else{
         bgm->stop();
@@ -620,34 +559,22 @@ QGraphicsItem * Player::getCommonParent(){
 }
 
 void Player::checkDelete(){
-    //qDebug()  << "BOTTOM = "<<BOTTOM;
-    // delete platforms
     for(int i = 0; i < platforms.size();++i){
-        if(platforms[i]->mapToScene(0,0).y() > BOTTOM + 100){
-            //qDebug() << "delete platform";
-            scene()->removeItem(platforms[i]);
-            platforms.removeFirst();
-        }
-        else{
-            //break;
-        }
-    }
-    for(int i = 0; i < props.size(); ++i){
-        if(props[i]->mapToScene(0,0).y() > BOTTOM + 100){
-            scene()->removeItem(props[i]);
-            props.removeFirst();
-        }
-        else{
-            //break;
-        }
+            if(platforms[i]->mapToScene(0,0).y() > SCREEN_HEIGHT+50){
+                platforms[i]->stopTimer();
+                scene()->removeItem(platforms[i]);
+                platforms.removeFirst();
+            }
+            else{
+                break;
+            }
     }
     for(int i = 0; i < monsters.size(); ++i){
         if(monsters[i] == nullptr){
             monsters.remove(i);
         }
         else{
-            if(monsters[i]->mapToScene(0,0).y() > BOTTOM + 100){
-                //qDebug() << "monster out of bounds";
+            if(monsters[i]->mapToScene(0,0).y() > SCREEN_HEIGHT){
                 monsters[i]->stopTimer();
                 scene()->removeItem(monsters[i]);
                 monsters.removeFirst();
@@ -659,11 +586,9 @@ void Player::checkDelete(){
     }
     monsters.squeeze();
     for(int i = 0; i < erics.size(); ++i){
-        if(erics[i]->mapToScene(0,0).y()> BOTTOM + 100){
-            qDebug() << "stopping" << QString::pointer(erics[i]) << "timers";
+        if(erics[i]->mapToScene(0,0).y()> SCREEN_HEIGHT){
             erics[i]->stopTimer();
             for(int j = 0; j < erics[i]->getMemberberries()->size(); ++j){
-                qDebug() << "removing" << QString::pointer(erics[i]) << "memberberries["<<j<<"] timers";
                 (*erics[i]->getMemberberries())[j]->stopTimer();
                 scene()->removeItem((*erics[i]->getMemberberries())[j]);
             }
@@ -681,21 +606,20 @@ void Player::checkDelete(){
 
 void Player::checkNewElements(){
     // add new platforms and monsters
-    if(travelDistance-platformcount * SPACING > 0){
+    if(travelDistance - platformcount * SPACING > 0){
         //qDebug() << "new item added";
         if(rand()%ELASTIC_PROB == 1){
             platforms.push_back(new Elastic(commonParent));
-            platforms[platforms.size()-1]->setPos(rand()%400, 0 - 10 - commonParent->mapToScene(0,0).y());
+            platforms[platforms.size()-1]->setPos(rand()%(SCREEN_WIDTH-100), 0 - 10 - commonParent->mapToScene(0,0).y());
         }
         else{
             if(rand()%HORI_PROB == 1){
-                qDebug() << "!!!horizontal1!!!";
                 platforms.push_back(new Horizontal(commonParent));
-                platforms[platforms.size()-1]->setPos(rand()%400, 0 - 10 - commonParent->mapToScene(0,0).y());
+                platforms[platforms.size()-1]->setPos(rand()%(SCREEN_WIDTH-100), 0 - 10 - commonParent->mapToScene(0,0).y());
             }
             else{
                 platforms.push_back(new Normal(commonParent));
-                platforms[platforms.size()-1]->setPos(rand()%400, 0 - 10 - commonParent->mapToScene(0,0).y());
+                platforms[platforms.size()-1]->setPos(rand()%(SCREEN_WIDTH-100), 0 - 10 - commonParent->mapToScene(0,0).y());
             }
             if(rand()%WING_PROB == 2){
                 props.push_back(new Wings(platforms[platforms.size()-1]));
@@ -710,7 +634,7 @@ void Player::checkNewElements(){
             else if(rand()%MONSTER_PROB == 0){
                 //qDebug() << "monster created";
                 monsters.push_back(new Monster(commonParent));
-                monsters[monsters.size()-1]->setPos(rand()%400 ,platforms[platforms.size()-1]->y()-MONSTER_HEIGHT-10);
+                monsters[monsters.size()-1]->setPos(rand()%(SCREEN_WIDTH-100) ,platforms[platforms.size()-1]->y()-MONSTER_HEIGHT-10);
                 //scene()->addItem(monsters[monsters.size()-1]);
             }
             else if(rand()%ERIC_PROB == 5){
@@ -721,7 +645,7 @@ void Player::checkNewElements(){
                 }
                 else{
                     erics.push_back(new Eric(rightSide, commonParent));
-                    erics[erics.size()-1]->setPos(410, platforms[platforms.size()-1]->y()-ERIC_SIZE);
+                    erics[erics.size()-1]->setPos(SCREEN_WIDTH+10-ERIC_SIZE, platforms[platforms.size()-1]->y()-ERIC_SIZE);
                 }
                 //scene()->addItem(erics[erics.size()-1]);
             }
@@ -741,11 +665,12 @@ void Player::checkNewElements(){
 
 void Player::checkBounce(){
 
-    // bounces off a platform and bring down all items if needed
+    // bounces off a platform and brings down all items if needed
+
     if(verticalSpeed < 0){ //don't do = 0 cause it will create infinity speed
         for(int i = 0; i < platforms.size(); ++i){
             if(mapFromItem(platforms[i], 0, 0).x()<PLAYER_WIDTH && mapFromItem(platforms[i], 0, 0).x() > -PLATFORM_WIDTH)
-                if(mapFromItem(platforms[i], 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(platforms[i], 0, 0).y() < PLAYER_HEIGHT - verticalSpeed){
+                if(mapFromItem(platforms[i], 0, 0).y() >= PLAYER_HEIGHT && mapFromItem(platforms[i], 0, 0).y() <= PLAYER_HEIGHT - verticalSpeed){
                     //qDebug() << "jump!";
                     if(direction == directions::right){
                         randy->setPixmap(QPixmap(":/Resource/RandyCrouchedRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
@@ -756,13 +681,24 @@ void Player::checkBounce(){
                     decrouchtimer->start(200);
                     platforms[i]->response();
                     setY(platforms[i]->mapToScene(0,0).y() - PLAYER_HEIGHT);
-                    verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
-                    ACC_PLAYER = verticalSpeed/jumpTime;
-                    lastBounce = platforms[i];
-                    if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
-                        downMode = true;
-                        verticalItemSpeed = (BOTTOM-lastBounce->mapToScene(0,0).y()) * 2.0/jumpTime;
-                        ACC_ITEM = verticalItemSpeed/jumpTime;
+                    lastBounce->setY(platforms[i]->y());
+                    if(elasticMode || weedMode){
+                        verticalSpeed = (2.0*(y()-MAX_HEIGHT)/springTime);
+                        ACC_PLAYER = verticalSpeed/springTime;
+                        if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
+                            downMode = true;
+                            verticalItemSpeed = (BOTTOM-lastBounce->mapToScene(0,0).y()) * 2.0/springTime;
+                            ACC_ITEM = verticalItemSpeed/springTime;
+                        }
+                    }else{
+                        qDebug() << "jump starts from y() = " << y();
+                        verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
+                        ACC_PLAYER = verticalSpeed/jumpTime;
+                        if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
+                            downMode = true;
+                            verticalItemSpeed = (BOTTOM-lastBounce->mapToScene(0,0).y()) * 2.0/jumpTime;
+                            ACC_ITEM = verticalItemSpeed/jumpTime;
+                        }
                     }
                     break;
                 }
@@ -771,31 +707,6 @@ void Player::checkBounce(){
 
  }
 
-void Player::Bounce(){
-    //qDebug() << "jump!";
-    if(direction == directions::right){
-        randy->setPixmap(QPixmap(":/Resource/RandyCrouchedRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-    }
-    else{
-        randy->setPixmap(QPixmap(":/Resource/RandyCrouchedLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
-    }
-    QTimer::singleShot(200, this, SLOT(decrouch()));
-    //qDebug() << "height = " << y();
-    //if(y()-MAX_HEIGHT > 0){
-        verticalSpeed = (2.0*(y()-MAX_HEIGHT)/jumpTime);
-        ACC_PLAYER = verticalSpeed/jumpTime;
-    //}
-    //else{
-        //t = (sqrt(verticalSpeed*verticalSpeed-2*GRAVITY*(y()-MAX_HEIGHT))-verticalSpeed)/GRAVITY;
-    //}
-    //qDebug() << "s = "<< y()-MAX_HEIGHT;
-    if(mapFromItem(lastBounce, 0, 0).y() < BOTTOM){
-        downMode = true;
-        verticalItemSpeed = (BOTTOM-lastBounce->mapToScene(0,0).y()) * 2.0/jumpTime;
-        ACC_ITEM = verticalItemSpeed/jumpTime;
-        qDebug() << "item speed = "<< verticalItemSpeed;
-    }
-}
 
 void Player::checkProps(){
     //check props
@@ -809,48 +720,54 @@ void Player::checkProps(){
 }
 
 void Player::endGame(){
-    for(int i = 0; i < platforms.size();++i){
-        if(platforms[i]->mapToScene(0,0).y() < 0-10){
-            //qDebug() << "platform removed";
-            scene()->removeItem(platforms[i]);
-            platforms.removeFirst();
-        }
-        else{
-            break;
-        }
-    }
-    for(int i = 0; i < props.size(); ++i){
-        if(props[i]->mapToScene(0,0).y()<0-100){
-            scene()->removeItem(props[i]);
-            props.removeFirst();
-        }
-        else{
-            break;
-        }
-    }
-    for(int i = 0; i < monsters.size(); ++i){
-        if(monsters[i] == nullptr){
-            monsters.remove(i);
-        }
-        else{
-            if(monsters[i]->mapToScene(0,0).y() < 0-200){
-                scene()->removeItem(monsters[i]);
-                monsters[i]->stopTimer();
-                monsters.removeFirst();
+    for(int i = 0; i < platforms.size(); ++i){
+        if(platforms[i]->scene() != nullptr){
+            if(platforms[i]->mapToScene(0,0).y() < 0-10){
+                platforms[i]->stopTimer();
+                scene()->removeItem(platforms[i]);
+                platforms.removeFirst();
             }
             else{
                 break;
             }
-
+        }
+    }
+    for(int i = 0; i < monsters.size(); ++i){
+        if(monsters[i] == nullptr){
+            qDebug() << "monster nullptr";
+            monsters.remove(i);
+        }
+        else{
+            if(monsters[i]->scene() != nullptr){
+                if(monsters[i]->mapToScene(0,0).y() < 0-MONSTER_HEIGHT){
+                    qDebug() << "monster"<< QString::pointer(monsters[i]) <<"removed";
+                    scene()->removeItem(monsters[i]);
+                    monsters[i]->stopTimer();
+                    monsters.removeFirst();
+                }
+                else{
+                    break;
+                }
+            }
         }
     }
     for(int i = 0; i < erics.size(); ++i){
-        if(erics[i]->mapToScene(0,0).y()<0-100){
-            //scene()->removeItem(erics[i]);
-            //erics.removeFirst();
-        }
-        else{
-            break;
+        if(erics[i]->scene() != nullptr){
+            if(erics[i]->mapToScene(0,0).y()< 0-100){
+                erics[i]->stopTimer();
+                for(int j = 0; j < erics[i]->getMemberberries()->size(); ++j){
+                    (*erics[i]->getMemberberries())[j]->stopTimer();
+                    scene()->removeItem((*erics[i]->getMemberberries())[j]);
+                }
+                (*erics[i]->getMemberberries()).clear();
+                (*erics[i]->getMemberberries()).squeeze();
+                qDebug() << "eric removed";
+                scene()->removeItem(erics[i]);
+                erics.remove(i);
+            }
+            else{
+                //break;
+            }
         }
     }
 
@@ -874,16 +791,15 @@ void Player::pullBG(){
             commonParent->moveBy(0, BOTTOM-lastBounce->mapToScene(0,0).y());
             tree->moveBy(0,(BOTTOM-lastBounce->mapToScene(0,0).y())/10.0);
             mountains->moveBy(0,(BOTTOM-lastBounce->mapToScene(0,0).y())/100.0);
-            ACC_PLAYER = (650.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);
             downMode = false;
             verticalItemSpeed = 0;
             travelDistance += BOTTOM-lastBounce->mapToScene(0,0).y();
             score->setPlainText(QString::number(travelDistance));
             if(elasticMode == true){
                 if(weedMode == false){
-                    BOTTOM = 650.0;
+                    BOTTOM = SCREEN_HEIGHT - 50.0;
                 }
-                ACC_PLAYER= (650.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);;
+                ACC_PLAYER= (BOTTOM - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);;
                 elasticMode = false;
             }
         }
@@ -902,20 +818,19 @@ void Player::pullBG(){
         }
     }
     else{
-        ACC_PLAYER = 700.0/(jumpTime*jumpTime);
         downMode = false;
     }
 }
 
 void Player::rocketMove(){
     // move to a certain height and stop
-    if(verticalSpeed > 0 && y() > 300){
-        if(y() < MAX_HEIGHT + ROCKET_SPEED){
-                setY(MAX_HEIGHT);
-                verticalSpeed = 0;
+    if(verticalSpeed > 0 && y() > MAX_HEIGHT + 50){
+        if(y() < MAX_HEIGHT + 50 + verticalSpeed){
+                setY(MAX_HEIGHT + 50);
+                verticalSpeed -= ACC_PLAYER;
         }
         else{
-            moveBy(0,-ROCKET_SPEED);
+            moveBy(0, -verticalSpeed);
         }
     }
 
@@ -934,7 +849,7 @@ void Player::normalMove(){
         if(y() < MAX_HEIGHT + verticalSpeed){
                 setY(MAX_HEIGHT);
                 verticalSpeed = 0;
-                ACC_PLAYER = DEFAULT_GRAVITY;
+                ACC_PLAYER = (BOTTOM - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);
         }
         else{
             moveBy(0,-verticalSpeed);
@@ -950,9 +865,10 @@ void Player::normalMove(){
 void Player::checkFail(){
     // fail
     if(SCREEN_HEIGHT-y()<PLAYER_HEIGHT){
-        qDebug() << "height = " << y();
+        //qDebug() << "height = " << y();
         if(fail == false){
             qDebug() << "you fail!";
+            qDebug() << "platforms.size() =" << platforms.size();
             verticalSpeed = INITIAL_JUMP_SPEED;
             setFail();
         }
@@ -1004,7 +920,7 @@ Player::~Player(){
 }
 
 void Player::setLastBounce(QGraphicsItem * item){
-    lastBounce = item;
+    lastBounce->setY(item->y());
 }
 
 void Player::setAngelMode(){
@@ -1120,12 +1036,9 @@ void Player::setPause(bool a){
 }
 
 void Player::flipping(){
-    qDebug() << "flipping back!!";
+    //qDebug() << "flipping back!!";
     if(flipangle<90){
-        //scene()->views()[0]->resetTransform();
-        //scene()->views()[0]->scale(0.9,1);
         scene()->views()[0]->rotate(2);
-        //scene()->views()[0]->translate(0, 7);
         ++flipangle;
     }
     else if(scalefactor>-90){
@@ -1141,5 +1054,27 @@ void Player::flipping(){
         scene()->views()[0]->resetTransform();
         pauseandfliptimer->stop();
         setPause(false);
+    }
+}
+
+bool Player::isFail(){
+    return fail;
+}
+
+void Player::setOrientation(directions d){
+    if(d == directions::left){
+        if(rocketMode == true){
+            randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
+        }
+        else{
+            randy->setPixmap(QPixmap(":/Resource/RandyLeft.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
+        }
+    }else{
+        if(rocketMode == true){
+            randy->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
+        }
+        else{
+            randy->setPixmap(QPixmap(":/Resource/RandyRight.png").scaled(PLAYER_WIDTH, PLAYER_HEIGHT));
+        }
     }
 }

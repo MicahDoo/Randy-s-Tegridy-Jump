@@ -41,12 +41,17 @@ void Game::keyPressEvent(QKeyEvent *event){
 
 void Game::startGame(){
     // create a scene
+
     scene = new QGraphicsScene();
-    scene -> setSceneRect(2,0, 500, SCREEN_HEIGHT);
-    scene -> setBackgroundBrush(QBrush(QImage(":/Resource/Background.jpeg").scaled(500, SCREEN_HEIGHT)));
+    scene -> setSceneRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    QGraphicsPixmapItem *background = new QGraphicsPixmapItem();
+    background->setPixmap(QPixmap(":/Resource/Background.jpeg").scaled(SCREEN_WIDTH, SCREEN_HEIGHT));
+    scene->addItem(background);
+    scene->setBackgroundBrush(QBrush(Qt::black));
     setScene(scene);
 
     // create an item
+
     player = new Player(scene);
     player->setFlag(QGraphicsItem::ItemIsFocusable);
     player->setFocus();
@@ -58,4 +63,5 @@ void Game::startGame(){
     scene->addItem(player->getScore());
     scene->addItem(player->getGameover());
     scene->addItem(player->getGameoverwrapup());
+    resetTransform();
 }

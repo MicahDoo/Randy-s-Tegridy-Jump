@@ -5,11 +5,14 @@
 #include <QObject>
 #include <QMediaPlayer>
 #include <QSoundEffect>
+#include <QTimer>
 
-class Platform: public QGraphicsPixmapItem{
+class Platform: public QObject, public QGraphicsPixmapItem{
+    Q_OBJECT
 public:
     //Platform();
     Platform(QGraphicsItem * parent = nullptr);
+    ~Platform();
     void stopTimer();
     void resumeTimer();
     virtual void response(); //some platforms respond by breaking or jiggling
@@ -35,10 +38,10 @@ public:
     void response();
     void behavior();
 private:
-    //QTimer *timer;
+
 };
 
-class Horizontal: public QObject, public Platform{
+class Horizontal: public Platform{
     Q_OBJECT
 public:
     Horizontal(QGraphicsItem * parent = nullptr);
@@ -48,7 +51,6 @@ public:
 public slots:
     void move();
 private:
-    //QTimer *timer;
     double t = 0.0;
 };
 

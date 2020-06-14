@@ -4,11 +4,7 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-Eric::Eric(sides s, QGraphicsItem *parent) : QGraphicsPixmapItem(parent){
-    side = s;
-    timer = new QTimer();
-    singleshottimer = new QTimer();
-    backtimer = new QTimer();
+Eric::Eric(sides s, QGraphicsItem *parent) : QGraphicsPixmapItem(parent), timer(new QTimer(this)), singleshottimer(new QTimer(this)), backtimer(new QTimer(this)), side(s), singleshottimerRemain(-1.0), backtimerRemain(-1.0){
     singleshottimer->setSingleShot(true);
     backtimer->setSingleShot(true);
     if(side == leftSide){
@@ -39,9 +35,9 @@ void Eric::ready(){
         return;
     }
     if(rand()%100 == 1){
-        qDebug() << "rand()%100 == 1";
+        //qDebug() << "rand()%100 == 1";
         timer->stop();
-        QMediaPlayer *cool = new QMediaPlayer();
+        QMediaPlayer *cool = new QMediaPlayer(this);
         cool -> setMedia(QUrl("qrc:/Resource/Cool.mp3"));
         cool -> setVolume(30);
         cool -> play();
@@ -57,7 +53,7 @@ void Eric::ready(){
 
 void Eric::shoot(){
     memberberries.push_back(new MemberBerry(side, this));
-    qDebug() << "new memberberry" << memberberries.size()-1 << "from" << QString::pointer(this);
+    //qDebug() << "new memberberry" << memberberries.size()-1 << "from" << QString::pointer(this);
     if(side == leftSide){
         setPixmap(QPixmap(":/Resource/EricShootingLeft.png").scaled(ERIC_SIZE*1.2,ERIC_SIZE));
         memberberries[memberberries.size()-1]->setPos(ERIC_SIZE*1.18,ERIC_SIZE*0.45);
@@ -71,7 +67,6 @@ void Eric::shoot(){
 }
 
 void Eric::back(){
-    qDebug() << "turning back";
     if(side == leftSide){
         setPixmap(QPixmap(":/Resource/Eric Cartman Left.png").scaled(ERIC_SIZE,ERIC_SIZE));
     }
@@ -90,10 +85,8 @@ QVector<MemberBerry*> * Eric::getMemberberries(){
 void Eric::stopTimer(){
     timer->stop();
     singleshottimerRemain = singleshottimer->remainingTime();
-    qDebug() << "singleshottimerRemain = " << singleshottimerRemain;
     singleshottimer->stop();
     backtimerRemain = backtimer->remainingTime();
-    qDebug() << "backtimerRemain = " << backtimerRemain;
     backtimer->stop();
     for (int i = 0; i < memberberries.size(); i++){
         memberberries[i]->stopTimer();

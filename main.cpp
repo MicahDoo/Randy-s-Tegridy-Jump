@@ -16,11 +16,9 @@ int main(int argc, char *argv[])
 
     Game * view = new Game();
 
-    view->setFixedSize(500,700);
+    view->setFixedSize(SCREEN_WIDTH,SCREEN_HEIGHT);
     view->show();
     view->fitInView(view->getScene()->sceneRect(), Qt::IgnoreAspectRatio);
-
-
 
     return a.exec();
 }

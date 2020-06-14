@@ -6,8 +6,8 @@
 #include <QTimer>
 #include <QMediaPlayer>
 
-Prop::Prop(QGraphicsItem * parent){
-    setParentItem(parent);
+Prop::Prop(QGraphicsItem * parent) : QGraphicsPixmapItem(parent){
+    setZValue(PLATFORM_LAYER);
 }
 
 void Prop::response(){
@@ -21,43 +21,37 @@ Wings::Wings(QGraphicsItem * parent){
 }
 
 void Wings::response(){
-    Game* game = dynamic_cast<Game*>(scene()->views()[0]);
-    game->getPlayer()->setRocketMode(true);
-    game->getPlayer()->setDownMode(false);
-    game->getPlayer()->setVerticalSpeed(3.0);
-    if(game->getPlayer()->getDirection() == directions::left){
-        game->getPlayer()->getRandy()->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
-    }
-    else{
-        game->getPlayer()->getRandy()->setPixmap(QPixmap(":/Resource/ButterflyRight.png").scaled(100,100));
+    if(scene() != nullptr){
+        Game* game = dynamic_cast<Game*>(scene()->views()[0]);
+        game->getPlayer()->setRocketMode(true);
     }
 }
 
-Weed::Weed(QGraphicsItem * parent){
-    setParentItem(parent);
+Weed::Weed(QGraphicsItem * parent) : Prop(parent){
     setPixmap(QPixmap(":/Resource/TegridyWeed.png").scaled(40,50));
-    setZValue(PLATFORM_LAYER);
 }
 
 void Weed::response(){
-    QMediaPlayer *tegridyweed = new QMediaPlayer();
-    tegridyweed->setMedia(QUrl("qrc:/Resource/TegridyWeed.mp3"));
-    tegridyweed->setVolume(1000);
-    tegridyweed->play();
-    Game* game = dynamic_cast<Game*>(scene()->views()[0]);
-    game->getPlayer()->setBOTTOM(1000.0);
-    game->getPlayer()->setWeedMode();
+    if(scene() != nullptr){
+        QMediaPlayer *tegridyweed = new QMediaPlayer();
+        tegridyweed->setMedia(QUrl("qrc:/Resource/TegridyWeed.mp3"));
+        tegridyweed->setVolume(1000);
+        tegridyweed->play();
+        Game* game = dynamic_cast<Game*>(scene()->views()[0]);
+        game->getPlayer()->setBOTTOM(1000.0);
+        game->getPlayer()->setWeedMode();
+    }
 }
 
-Kenny::Kenny(QGraphicsItem * parent){
-    setParentItem(parent);
+Kenny::Kenny(QGraphicsItem * parent) : Prop(parent){
     setPixmap(QPixmap(":/Resource/DeadKenny.png").scaled(80,50));
-    setZValue(PLATFORM_LAYER);
 }
 
 void Kenny::response(){
-    Game* game = dynamic_cast<Game*>(scene()->views()[0]);
-    game->getPlayer()->setAngelMode();
+    if(scene() != nullptr){
+        Game* game = dynamic_cast<Game*>(scene()->views()[0]);
+        game->getPlayer()->setAngelMode();
+    }
 }
 
 Kenny::~Kenny(){

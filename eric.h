@@ -25,8 +25,8 @@ private:
     QTimer *backtimer;
     sides side;
     QVector<MemberBerry*> memberberries;
-    double singleshottimerRemain = -1.0;
-    double backtimerRemain = -1.0;
+    double singleshottimerRemain;
+    double backtimerRemain;
 public:
     ~Eric();
 };

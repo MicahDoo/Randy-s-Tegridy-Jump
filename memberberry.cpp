@@ -4,8 +4,7 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-MemberBerry::MemberBerry(sides side, QGraphicsItem * parent){
-    setParentItem(parent);
+MemberBerry::MemberBerry (sides side, QGraphicsItem * parent) : QGraphicsPixmapItem(parent), timer(new QTimer(this)), swelltimer(new QTimer(this)), pauseandfliptimer(new QTimer(this)), music(new QMediaPlayer(this)), nya(new QMediaPlayer(this)){
     if(side == leftSide){
         direction = directions::right;
     }
@@ -14,58 +13,47 @@ MemberBerry::MemberBerry(sides side, QGraphicsItem * parent){
     }
     setPixmap(QPixmap(":/Resource/MemberBerry.png").scaled(1,1));
     setZValue(MEMBERBERRY_LAYER);
-    timer = new QTimer();
     timer->start(1000/FPS);
-    swelltimer = new QTimer();
     swelltimer->start(1000/FPS);
     connect(timer, SIGNAL(timeout()), this, SLOT(fly()));
     connect(swelltimer, SIGNAL(timeout()), this, SLOT(swell()));
-    music = new QMediaPlayer();
-    nya = new QMediaPlayer();
     int n = rand()%3;
+    music->setVolume(1000);
     if(n == 1){
         qDebug() << "n = 1";
         music->setMedia(QUrl("qrc:/Resource/OohIMember.mp3"));
-        music->setVolume(1000);
         music-> play();
     }
     else if(n == 0){
         qDebug() << "n = 0";
         music->setMedia(QUrl("qrc:/Resource/MemberF.mp3"));
-        music->setVolume(1000);
         music-> play();
     }
     else{
         qDebug() << "n = 2";
        music->setMedia(QUrl("qrc:/Resource/MemberFeelingSafe.mp3"));
-       music->setVolume(1000);
        music->play();
     }
-    pauseandfliptimer = new QTimer();
     connect(pauseandfliptimer, SIGNAL(timeout()), this, SLOT(flipping()));
 }
 
 void MemberBerry::fly(){
-    /*if(mapFromScene(0,0).y() <-80){
-        //scene()->removeItem(this);  //-->how do i delete the vector pointer too?
-        timer->stop();
-        swelltimer->stop();
-        return;
-    //}*/
     moveBy(direction, 0);
     Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
-    if(player->getRandy()->collidesWithItem(this)){
+    if(!player->isFail()){
         if(!player->isProtectedMode()){
             if(!player->isFlipMode()){
-                nya->setMedia(QUrl("qrc:/Resource/CartmanNya.mp3"));
-                nya->setVolume(100);
-                nya-> play();
-                flipangle = 0;
-                scalefactor = 90.0;
-                pauseandfliptimer->start(1000/FPS);
-                player->setPause(true);
-                player->setFlipEndDistance(player->getTravelDistance()+FLIP_DISTANCE);
-                player->setFlipMode(true);
+                if(player->getRandy()->collidesWithItem(this)){
+                    nya->setMedia(QUrl("qrc:/Resource/CartmanNya.mp3"));
+                    nya->setVolume(100);
+                    nya-> play();
+                    flipangle = 0;
+                    scalefactor = 90.0;
+                    pauseandfliptimer->start(1000/FPS);
+                    player->setPause(true);
+                    player->setFlipEndDistance(player->getTravelDistance()+FLIP_DISTANCE);
+                    player->setFlipMode(true);
+                }
             }
         }
     }

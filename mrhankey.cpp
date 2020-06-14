@@ -7,8 +7,7 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-MrHankey::MrHankey(){
-    //setParentItem(parent);
+MrHankey::MrHankey() : timer(new QTimer(this)){
     setPixmap(QPixmap(":/Resource/MrHankey.png").scaled(100,80));
     setZValue(4);
     timer = new QTimer();

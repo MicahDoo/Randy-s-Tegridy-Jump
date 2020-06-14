@@ -4,10 +4,9 @@
 #include <QtMath>
 #include <QBuffer>
 
-Platform::Platform(QGraphicsItem * parent){
+Platform::Platform(QGraphicsItem * parent) : timer(new QTimer(this)){
     setParentItem(parent);
     setZValue(PLATFORM_LAYER);
-    timer = new QTimer();
 }
 
 void Platform::behavior(){
@@ -26,11 +25,12 @@ void Platform::resumeTimer(){
     timer->start();
 }
 
+Platform::~Platform(){
+    //delete timer;
+}
+
 Normal::Normal(QGraphicsItem * parent) : Platform(parent){
     setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
-    timer->start(1000/FPS);
-    //sound = new QSoundEffect();
-   // sound->setSource(QUrl("qrc:/Resource/Bounce.wav"));
 }
 
 void Normal::response(){
@@ -42,19 +42,16 @@ void Normal::behavior(){
 }
 
 Elastic::Elastic(QGraphicsItem * parent) : Platform(parent){
-    setPixmap(QPixmap(":/Resource/ElasticStill.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+40));
-    timer->start(1000/FPS);
-    //sound = new QSoundEffect();
-    //sound->setSource(QUrl("qrc:/Resource/Spring.mp3"));
+    setPixmap(QPixmap(":/Resource/ElasticStill.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+30));
+    setOffset(0, -30);
 }
 
 void Elastic::response(){
-    setPixmap(QPixmap(":/Resource/ElasticSet.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+40));
+    setPixmap(QPixmap(":/Resource/ElasticSet.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT+30));
     moveBy(0, -20);
     Game* game = dynamic_cast<Game*>(scene()->views()[0]);
     game->getPlayer()->setElasticMode(true);
     game->getPlayer()->setBOTTOM(1000.0);
-    //sound->play();
 }
 
 void Elastic::behavior(){
@@ -62,15 +59,13 @@ void Elastic::behavior(){
 }
 
 Elastic::~Elastic(){
-    delete timer;
     //delete sound;
 }
 
 Horizontal::Horizontal(QGraphicsItem * parent) : Platform(parent){
     setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
     behavior();
-    //sound = new QSoundEffect();
-    //sound->setSource(QUrl("qrc:/Resource/Bounce.wav"));
+
 }
 
 void Horizontal::response(){

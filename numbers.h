@@ -3,8 +3,9 @@
 
 #define PLAYER_WIDTH 45
 #define PLAYER_HEIGHT 100
-#define SCREEN_HEIGHT 700.0
-#define MAX_HEIGHT 335
+#define SCREEN_HEIGHT 780.0
+#define SCREEN_WIDTH 500
+#define MAX_HEIGHT 435
 #define PLATFORM_HEIGHT 10
 #define PLATFORM_WIDTH 100
 #define MONSTER_HEIGHT 150
@@ -17,16 +18,17 @@
 #define ROCKET_SPEED 20.0
 #define PROPS_DURATION 5000
 #define JUMP_TIME_SECS 1.7
+#define SPRING_TIME_SECS 2.0
 #define FLIP_DISTANCE 1500
 #define WELL_LENGTH 3000.0
 #define WELL_INTERVAL 4000.0
 
-#define WING_PROB 50
-#define WEED_PROB 50
-#define ELASTIC_PROB 50
-#define MONSTER_PROB 50
+#define WING_PROB 40
+#define WEED_PROB 30
+#define ELASTIC_PROB 30
+#define MONSTER_PROB 40
 #define ERIC_PROB 30
-#define KENNY_PROB 20
+#define KENNY_PROB 30
 #define HORI_PROB 10
 
 #define BACKGROUND_LAYER 0
@@ -35,7 +37,7 @@
 #define PLATFORM_LAYER 3
 #define MEMBERBERRY_LAYER 4
 #define CHARACTER_LAYER 5
-#define DEFAULT_GRAVITY 0.5
+#define DEFAULT_GRAVITY 0.48
 
 enum directions {left = -1, right = 1};
 enum sides {leftSide, rightSide};

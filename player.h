@@ -40,11 +40,11 @@ public:
     bool isProtectedMode();
     bool isFlipMode();
     int getTravelDistance();
+    bool isFail();
 
     //set modes
     void setRocketMode(bool a);
     void setDownMode(bool a);
-    void setVerticalSpeed(double v);
     void setBOTTOM(double number);
     void setWeedMode();
     void setFail();
@@ -57,6 +57,7 @@ public:
 
     //set attributes
     void setGRAVITY(double number);
+    void setOrientation(directions d);
 
     void checkDelete();
     void checkNewElements();
@@ -69,8 +70,6 @@ public:
     void rocketMove();
     void normalMove();
     void checkFail();
-
-    void Bounce();
 
     void stopTimers();
 
@@ -94,9 +93,6 @@ public slots:
     void angelOut();
     void angelFade();
     void flipping();
-
-    //void fadeInKenny();
-    //void fadeOutKenny();
 
 private:
 
@@ -122,7 +118,6 @@ private:
     bool leftKeyHeldDown = false;
     bool rightKeyHeldDown = false;
     bool processing = false;
-    QGraphicsItem *lastBounce;
 
     //modes
     bool downMode = false;
@@ -136,11 +131,12 @@ private:
     bool flipMode = false;
 
     // player attributes
-    double BOTTOM = 650.0; // don't let items be deleted above this height
+    double BOTTOM = SCREEN_HEIGHT - 50.0; // don't let items be deleted above this height
     double ACC_ITEM;
     const double jumpTime = JUMP_TIME_SECS * 1000.0/FPS; //miliseconds/refresh rate
-    double verticalSpeed = (650.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /jumpTime;
-    double ACC_PLAYER = (650.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);
+    const double springTime = SPRING_TIME_SECS * 1000.0/FPS;
+    double verticalSpeed = (SCREEN_HEIGHT - 50.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /jumpTime;
+    double ACC_PLAYER = (SCREEN_HEIGHT - 50.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);
     double verticalItemSpeed;
     //enum directions {left, right};
     directions direction;
@@ -150,13 +146,14 @@ private:
     int platformcount = 0;
     int mountaincount = 0;
     int treecount = 0;
-    int nextDarkWellLocation;
+    int nextDarkWellLocation = 3000;
     int flipEndDistance;
     int flipangle;
     double scalefactor;
 
     // game elements
     QGraphicsRectItem *commonParent;
+    QGraphicsItem *lastBounce;
     QVector<Platform*> platforms; // normal, spring
     QVector<Prop*> props; // wings, weeds, kenny's
     QVector<Monster*> monsters; //satan, manbearpig
@@ -168,6 +165,7 @@ private:
     QGraphicsPixmapItem *kenny;
     QGraphicsPathItem *darkness;
     QGraphicsDropShadowEffect *shadow;
+
     QGraphicsPixmapItem *darkWell;
 
     //texts

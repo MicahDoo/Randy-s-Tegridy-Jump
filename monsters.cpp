@@ -5,12 +5,11 @@
 #include <QDebug>
 #include <QMediaPlayer>
 
-Monster::Monster(QGraphicsItem *parent){
-    setParentItem(parent);
+Monster::Monster(QGraphicsItem *parent) : QGraphicsPixmapItem(parent), timer(new QTimer(this)){
     if(rand()%2 == 1){
         monstertype = monstertypes::satan;
         setPixmap(QPixmap(":/Resource/Satan.PNG").scaled(100,MONSTER_HEIGHT));
-        QMediaPlayer *satanhowl = new QMediaPlayer;
+        QMediaPlayer *satanhowl = new QMediaPlayer(this);
         satanhowl->setMedia(QUrl("qrc:/Resource/Satan.mp3"));
         satanhowl->setVolume(30);
         satanhowl->play();
@@ -18,13 +17,12 @@ Monster::Monster(QGraphicsItem *parent){
     else{
         monstertype = monstertypes::manbearpig;
         setPixmap(QPixmap(":/Resource/ManBearPig.PNG").scaled(100,MONSTER_HEIGHT));
-        QMediaPlayer *manbearpig = new QMediaPlayer;
+        QMediaPlayer *manbearpig = new QMediaPlayer(this);
         manbearpig ->setMedia(QUrl("qrc:/Resource/ManBearPig.mp3"));
         manbearpig->setVolume(30);
         manbearpig ->play();
     }
     setZValue(CHARACTER_LAYER);
-    timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(move()));
     timer -> start(1000/FPS);
 }
