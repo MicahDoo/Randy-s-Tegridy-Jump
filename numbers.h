@@ -28,7 +28,7 @@
 #define WEED_PROB 30
 #define ELASTIC_PROB 30
 #define MONSTER_PROB 30
-#define ERIC_PROB 5
+#define ERIC_PROB 30
 #define KENNY_PROB 30
 #define HORI_PROB 10
 
