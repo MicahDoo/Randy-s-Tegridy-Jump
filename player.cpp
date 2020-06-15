@@ -21,7 +21,7 @@
 
 Player::Player(QGraphicsScene * scene) : verticaltimer(new QTimer(this)), movetimer(new QTimer(this)), backgroundtimer(new QTimer(this)), fadetimer(new QTimer(this)), weedtimer(new QTimer(this)), angeltimer(new QTimer(this)), weedlasttimer(new QTimer(this)), butterflylasttimer(new QTimer(this)), angellasttimer(new QTimer(this)), decrouchtimer(new QTimer(this)), pauseandfliptimer(new QTimer(this)),
 commonParent(new QGraphicsRectItem()), lastBounce(new QGraphicsRectItem(commonParent)), tree(new QGraphicsPixmapItem()), mountains(new QGraphicsPixmapItem()), randy(new QGraphicsPixmapItem(this)), smoke(new QGraphicsPixmapItem(this)), kenny(new QGraphicsPixmapItem(this)), darkness(new QGraphicsPathItem(this)), shadow(new QGraphicsDropShadowEffect(this)), darkWell(new QGraphicsPixmapItem(commonParent)),
-score(new QGraphicsTextItem()), gameover(new QGraphicsTextItem(QString("Game Over!"))), gameoverwrapup(new QGraphicsTextItem()),
+score(new QGraphicsTextItem()), gameover(new QGraphicsTextItem(QString("Damn! You Died!"))), gameoverwrapup(new QGraphicsTextItem()),
 bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPlayer(this, QMediaPlayer::LowLatency)), kennyTalk(new QMediaPlayer(this, QMediaPlayer::LowLatency)), angelSound(new QMediaPlayer(this, QMediaPlayer::LowLatency)){
 
     // basic configuration
@@ -410,7 +410,7 @@ void Player::setRocketMode(bool a){
     randy->setPixmap(QPixmap(":/Resource/ButterflyLeft.png").scaled(100,100));
     setOrientation(direction);
     butterflylasttimer->start(PROPS_DURATION);
-    verticalSpeed = -(2.0*(y()-MAX_HEIGHT-50)/jumpTime);
+    verticalSpeed = 2.0*(y()-MAX_HEIGHT-BUTTERFLY_OFFSET)/jumpTime;
     ACC_PLAYER = verticalSpeed/jumpTime;
 }
 
@@ -473,7 +473,7 @@ void Player::setFail(){
         }
         fail = true;
         scene()->views()[0]->resetTransform();
-        gameoverwrapup->setPlainText(QString("Your score: ")+QString::number(travelDistance)+QString("\nPress enter to restart"));
+        gameoverwrapup->setPlainText(QString("You made it ")+QString::number(travelDistance)+QString("cm far\nPress enter to restart"));
         QMediaPlayer *gameoversound = new QMediaPlayer();
         gameoversound->setMedia(QUrl("qrc:/Resource/Game Over.mp3"));
         gameoversound->setVolume(30);
@@ -626,7 +626,7 @@ void Player::checkNewElements(){
                 connect(this, SIGNAL(paused()), monsters[monsters.size()-1], SLOT(stopTimer()));
                 connect(this, SIGNAL(resumed()), monsters[monsters.size()-1], SLOT(resumeTimer()));
             }
-            else if(rand()%ERIC_PROB == 5){
+            else if(rand()%ERIC_PROB == 1){
                 //qDebug() << "eric appeared";
                 if(rand()%2 == 1){
                     erics.push_back(new Eric(leftSide, commonParent));
@@ -810,14 +810,24 @@ void Player::pullBG(){
 
 void Player::rocketMove(){
     // move to a certain height and stop
-    if(verticalSpeed > 0 && y() > MAX_HEIGHT + 50 *48.0/FPS){
-        if(y() < MAX_HEIGHT + 50*48.0/FPS + verticalSpeed){
-                setY(MAX_HEIGHT + 50*48.0/FPS);
+    if(verticalSpeed > 0 && y() > MAX_HEIGHT + BUTTERFLY_OFFSET){
+        if(y() < MAX_HEIGHT + BUTTERFLY_OFFSET + verticalSpeed){
+                setY(MAX_HEIGHT + BUTTERFLY_OFFSET);
                 verticalSpeed -= ACC_PLAYER;
         }
         else{
             moveBy(0, -verticalSpeed);
         }
+    }
+    else if(y() < MAX_HEIGHT + BUTTERFLY_OFFSET){
+        if(y() > MAX_HEIGHT + BUTTERFLY_OFFSET + verticalSpeed){
+                setY(MAX_HEIGHT + BUTTERFLY_OFFSET);
+                verticalSpeed -= ACC_PLAYER;
+        }
+        else{
+            moveBy(0, -verticalSpeed);
+        }
+
     }
 
     commonParent->moveBy(0, ROCKET_SPEED * 48.0/FPS);
@@ -998,19 +1008,22 @@ void Player::setPause(bool a){
 }
 
 void Player::flipping(){
-    //qDebug() << "flipping back!!";
-    if(flipangle<90){
-        scene()->views()[0]->rotate(2);
-        ++flipangle;
-    }
-    else if(scalefactor>-90){
-        if(scalefactor != 2){
-            scene()->views()[0]->scale((scalefactor-2.0)/scalefactor,1);
-            scalefactor = scalefactor - 2;
+    if(flipangle<180){
+        flipangle += 2;
+        if(scalefactor>0){
+            scene()->views()[0]->rotate(4);
+        }else{
+            scene()->views()[0]->rotate(4);
         }
-        else{
-            scene()->views()[0]->scale(-1, 1);
-            scalefactor= -2.0;
+        if(scalefactor>-90){
+            if(scalefactor != 2){
+               scene()->views()[0]->scale(1,(scalefactor-2)/scalefactor);
+               scalefactor = scalefactor - 2;
+            }
+            else{
+                scene()->views()[0]->scale(1, -1);
+                scalefactor= -2;
+            }
         }
     }else{
         scene()->views()[0]->resetTransform();

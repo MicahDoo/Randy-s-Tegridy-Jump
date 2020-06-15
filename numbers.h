@@ -11,6 +11,7 @@
 #define MONSTER_HEIGHT 150
 #define SPACING 70.0
 #define ERIC_SIZE 80.0
+#define BUTTERFLY_OFFSET 100
 #define FPS 48
 
 #define INITIAL_JUMP_SPEED 20.0
@@ -27,7 +28,7 @@
 #define WEED_PROB 30
 #define ELASTIC_PROB 30
 #define MONSTER_PROB 30
-#define ERIC_PROB 30
+#define ERIC_PROB 5
 #define KENNY_PROB 30
 #define HORI_PROB 10
 

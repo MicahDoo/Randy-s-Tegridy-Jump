@@ -35,16 +35,8 @@ void Monster::move(){
     if(scene() != nullptr){
         Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
         if(player->getRandy()->collidesWithItem(this)){
-            if(mapFromItem(player,0,0).y() < MONSTER_HEIGHT - 5){
-                if(!player->isProtectedMode())
-                    player->setFail();
-            }
-            else{
-                pixmap().scaled(100,MONSTER_HEIGHT/2.0);
-                moveBy(0,50);
-                timer->stop();
-                return;
-            }
+            if(!player->isProtectedMode())
+                player->setFail();
         }
     }
 }

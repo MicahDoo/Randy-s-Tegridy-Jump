@@ -3,6 +3,7 @@
 #include "view.h"
 #include <QDebug>
 #include <QMediaPlayer>
+#include <QtMath>
 
 MemberBerry::MemberBerry (sides side, QGraphicsItem * parent) : QGraphicsPixmapItem(parent), timer(new QTimer(this)), swelltimer(new QTimer(this)), pauseandfliptimer(new QTimer(this)), music(new QMediaPlayer(this)), nya(new QMediaPlayer(this)){
     if(side == leftSide){
@@ -87,18 +88,22 @@ void MemberBerry::resumeTimer(){
 }
 
 void MemberBerry::flipping(){
-    if(flipangle<90){
-        scene()->views()[0]->rotate(2);
-        ++flipangle;
-    }
-    else if(scalefactor>-90){
-        if(scalefactor != 2){
-            scene()->views()[0]->scale((scalefactor-2)/scalefactor,1);
-            scalefactor = scalefactor - 2;
+    if(flipangle<180){
+        flipangle += 2;
+        if(scalefactor>0){
+            scene()->views()[0]->rotate(4);
+        }else{
+            scene()->views()[0]->rotate(4);
         }
-        else{
-            scene()->views()[0]->scale(-1, 1);
-            scalefactor= -2;
+        if(scalefactor>-90){
+            if(scalefactor != 2){
+               scene()->views()[0]->scale(1,(scalefactor-2)/scalefactor);
+               scalefactor = scalefactor - 2;
+            }
+            else{
+                scene()->views()[0]->scale(1, -1);
+                scalefactor= -2;
+            }
         }
     }else{
         scene()->views()[0]->resetTransform();
@@ -108,6 +113,7 @@ void MemberBerry::flipping(){
         player->setPause(false);
         player->setFlippingMode(false);
     }
+
 }
 
 MemberBerry::~MemberBerry(){
