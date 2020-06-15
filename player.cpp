@@ -186,8 +186,8 @@ void Player::keyPressEvent(QKeyEvent *event){
                 if(!movetimer->isActive()){
                     movetimer->start(1000/FPS);
                 }
-                setOrientation(directions::left);
-                direction = directions::left;
+                setOrientation(myDirections::directions::left);
+                direction = myDirections::directions::left;
             }
         }
         break;
@@ -198,8 +198,8 @@ void Player::keyPressEvent(QKeyEvent *event){
                 if(!movetimer->isActive()){
                     movetimer->start(1000.0/FPS);
                 }
-                setOrientation(directions::right);
-                direction = directions::right;
+                setOrientation(myDirections::directions::right);
+                direction = myDirections::directions::right;
             }
         }
         break;
@@ -215,13 +215,13 @@ void Player::keyReleaseEvent(QKeyEvent *event){
     if(event->key() == Qt::Key_Left || event->key() == Qt::Key_Right){
         if(leftKeyHeldDown == true && rightKeyHeldDown == true ){
             if(event->key() == Qt::Key_Left){
-                direction = directions::right;
-                setOrientation(directions::right);
+                direction = myDirections::directions::right;
+                setOrientation(myDirections::directions::right);
                 leftKeyHeldDown = false;
             }
             else{
-                direction = directions::left;
-                setOrientation(directions::left);
+                direction = myDirections::directions::left;
+                setOrientation(myDirections::directions::left);
                 rightKeyHeldDown = false;
             }
         }
@@ -239,7 +239,7 @@ void Player::keyReleaseEvent(QKeyEvent *event){
 }
 
 void Player::checkHorizontalMovement(){
-    if(direction == directions::left){
+    if(direction == myDirections::directions::left){
         setX(x() - STEP_SIZE);
     }
     else{
@@ -316,18 +316,30 @@ void Player::checkDarkWell(){
         if(darkWell->mapToScene(0,0).y()<0.0){
             if(darkness->opacity()<1.0){
                 darkness->setOpacity((darkWell->mapToScene(0,0).y()+WELL_LENGTH)/SCREEN_HEIGHT);
-                shadow->setColor(QColor(0, 0, 0,255*(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
+                if(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT>0){
+                    shadow->setColor(QColor(0, 0, 0,255*(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
+                    qDebug() << "rbg increasing" << 255*(darkWell->mapToScene(0,0).y()+WELL_LENGTH-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0);
+                }
             }
         }
-        else{
+        else if(darkWell->mapToScene(0,0).y() < SCREEN_HEIGHT){
             if(darkness->opacity()>0.0){
                 darkness->setOpacity((SCREEN_HEIGHT-darkWell->mapToScene(0,0).y())/SCREEN_HEIGHT);
-                shadow->setColor(QColor(0, 0, 0,255*(SCREEN_HEIGHT-darkWell->mapToScene(0,0).y()-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
+                if(SCREEN_HEIGHT-darkWell->mapToScene(0,0).y()-MAX_HEIGHT>0){
+                    shadow->setColor(QColor(0, 0, 0,255*(SCREEN_HEIGHT-darkWell->mapToScene(0,0).y()-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0)));
+                    qDebug() << "rbg decreasing" << 255*(SCREEN_HEIGHT-darkWell->mapToScene(0,0).y()-MAX_HEIGHT)/(SCREEN_HEIGHT+300.0);
+                }
             }
             else{
+                qDebug() << "opacity = 0, delete";
                 delete darkWell;
                 darkWellMode = false;
             }
+        }
+        else{
+            qDebug() << "out-of-bounds, delete";
+            delete darkWell;
+            darkWellMode = false;
         }
     }
 }
@@ -387,7 +399,7 @@ void Player::butterflyDead(){
     setOrientation(direction);
 }
 
-directions Player::getDirection(){
+myDirections::directions Player::getDirection(){
     return direction;
 }
 
@@ -798,9 +810,9 @@ void Player::pullBG(){
 
 void Player::rocketMove(){
     // move to a certain height and stop
-    if(verticalSpeed > 0 && y() > MAX_HEIGHT + 50){
-        if(y() < MAX_HEIGHT + 50 + verticalSpeed){
-                setY(MAX_HEIGHT + 50);
+    if(verticalSpeed > 0 && y() > MAX_HEIGHT + 50 *48.0/FPS){
+        if(y() < MAX_HEIGHT + 50*48.0/FPS + verticalSpeed){
+                setY(MAX_HEIGHT + 50*48.0/FPS);
                 verticalSpeed -= ACC_PLAYER;
         }
         else{
@@ -808,10 +820,10 @@ void Player::rocketMove(){
         }
     }
 
-    commonParent->moveBy(0, ROCKET_SPEED);
+    commonParent->moveBy(0, ROCKET_SPEED * 48.0/FPS);
 
-    tree->moveBy(0,(ROCKET_SPEED/10.0));
-    travelDistance += ROCKET_SPEED;
+    tree->moveBy(0,(ROCKET_SPEED/10.0)* 48.0/FPS);
+    travelDistance += ROCKET_SPEED* 48.0/FPS;
     score->setPlainText(QString::number(travelDistance));
 
     downMode = false;
@@ -1012,8 +1024,8 @@ bool Player::isFail(){
     return fail;
 }
 
-void Player::setOrientation(directions d){
-    if(d == directions::left){
+void Player::setOrientation(myDirections::directions d){
+    if(d == myDirections::directions::left){
         randy->resetTransform();
     }else{
         randy->setTransform(transform);

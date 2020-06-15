@@ -30,7 +30,7 @@ Platform::~Platform(){
 }
 
 Normal::Normal(QGraphicsItem * parent) : Platform(parent){
-    setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
+    setPixmap(QPixmap(":/Resource/Platform.jpg").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
 }
 
 void Normal::response(){
@@ -61,7 +61,7 @@ Elastic::~Elastic(){
 }
 
 Horizontal::Horizontal(QGraphicsItem * parent) : Platform(parent){
-    setPixmap(QPixmap(":/Resource/Platform.png").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
+    setPixmap(QPixmap(":/Resource/Platform.jpg").scaled(PLATFORM_WIDTH,PLATFORM_HEIGHT));
     behavior();
 
 }
@@ -77,7 +77,7 @@ void Horizontal::behavior(){
 
 void Horizontal::move(){
     moveBy(3.0*qCos(t),0);
-    t = t + 0.02;
+    t = t + 0.02*48.0/FPS;
 }
 
 Horizontal::~Horizontal(){

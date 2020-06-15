@@ -3,7 +3,6 @@
         <file>Resource/Eric Cartman Right.png</file>
         <file>Resource/Bullet.png</file>
         <file>Resource/Eric Cartman Left.png</file>
-        <file>Resource/Platform.png</file>
         <file>Resource/RandyCrouchedRight.png</file>
         <file>Resource/RandyLeft.png</file>
         <file>Resource/RandyRight.png</file>
@@ -50,5 +49,6 @@
         <file>Resource/Spring.mp3</file>
         <file>Resource/Bounce.wav</file>
         <file>Resource/Chicken on the Rocks.mp3</file>
+        <file>Resource/Platform.jpg</file>
     </qresource>
 </RCC>

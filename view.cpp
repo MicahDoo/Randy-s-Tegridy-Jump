@@ -4,6 +4,8 @@
 #include <QDebug>
 
 Game::Game(){
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     startGame();
 }
 

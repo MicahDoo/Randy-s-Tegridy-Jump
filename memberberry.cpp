@@ -6,10 +6,10 @@
 
 MemberBerry::MemberBerry (sides side, QGraphicsItem * parent) : QGraphicsPixmapItem(parent), timer(new QTimer(this)), swelltimer(new QTimer(this)), pauseandfliptimer(new QTimer(this)), music(new QMediaPlayer(this)), nya(new QMediaPlayer(this)){
     if(side == leftSide){
-        direction = directions::right;
+        direction = myDirections::directions::right;
     }
     else{
-        direction = directions::left;
+        direction = myDirections::directions::left;
     }
     setPixmap(QPixmap(":/Resource/MemberBerry.png").scaled(1,1));
     setZValue(MEMBERBERRY_LAYER);
@@ -35,7 +35,7 @@ MemberBerry::MemberBerry (sides side, QGraphicsItem * parent) : QGraphicsPixmapI
 }
 
 void MemberBerry::fly(){
-    moveBy(direction, 0);
+    moveBy(direction*48.0/FPS, 0);
     if(scene() != nullptr){
         Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();
         if(!player->isFail()){

@@ -17,8 +17,8 @@
 #define STEP_SIZE 8.0
 #define ROCKET_SPEED 20.0
 #define PROPS_DURATION 5000
-#define JUMP_TIME_SECS 1.7
-#define SPRING_TIME_SECS 2.0
+#define JUMP_TIME_SECS 0.7
+#define SPRING_TIME_SECS 1.2
 #define FLIP_DISTANCE 1500
 #define WELL_LENGTH 3000.0
 #define WELL_INTERVAL 4000.0
@@ -39,7 +39,9 @@
 #define CHARACTER_LAYER 5
 #define DEFAULT_GRAVITY 0.48
 
+namespace myDirections{
 enum directions {left = -1, right = 1};
+}
 enum sides {leftSide, rightSide};
 
 #endif // NUMBERS_H

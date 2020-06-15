@@ -36,7 +36,7 @@ public:
 
     //get attributes
     double getSpeed();
-    directions getDirection();
+    myDirections::directions getDirection();
     bool isProtectedMode();
     bool isFlipMode();
     int getTravelDistance();
@@ -56,7 +56,7 @@ public:
 
     //set attributes
     void setGRAVITY(double number);
-    void setOrientation(directions d);
+    void setOrientation(myDirections::directions d);
     void setFlippingMode(bool a);
 
     void checkDelete();
@@ -139,13 +139,13 @@ private:
     // player attributes
     double BOTTOM = SCREEN_HEIGHT - 50.0; // don't let items be deleted above this height
     double ACC_ITEM;
-    const double jumpTime = JUMP_TIME_SECS * 1000.0/FPS; //miliseconds/refresh rate
-    const double springTime = SPRING_TIME_SECS * 1000.0/FPS;
+    const double jumpTime = JUMP_TIME_SECS * FPS; //miliseconds/refresh rate
+    const double springTime = SPRING_TIME_SECS * FPS;
     double verticalSpeed = (SCREEN_HEIGHT - 50.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /jumpTime;
     double ACC_PLAYER = (SCREEN_HEIGHT - 50.0 - MAX_HEIGHT - PLAYER_HEIGHT)*2.0 /(jumpTime*jumpTime);
     double verticalItemSpeed;
-    //enum directions {left, right};
-    directions direction;
+    //enum myDirections::directions {left, right};
+    myDirections::directions direction;
     int travelDistance = 0;
 
     // scene attributes

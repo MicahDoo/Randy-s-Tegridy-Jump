@@ -24,7 +24,7 @@ public slots:
 
 private:
     QTimer *timer;
-    directions direction;
+    myDirections::directions direction;
     QTimer *swelltimer;
     QTimer *pauseandfliptimer;
     int flipangle;
