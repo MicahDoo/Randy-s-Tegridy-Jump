@@ -12,7 +12,7 @@ class Platform: public QObject, public QGraphicsPixmapItem{
 public:
     //Platform();
     Platform(QGraphicsItem * parent = nullptr);
-    ~Platform();
+    virtual ~Platform();
     virtual void response(); //some platforms respond by breaking or jiggling
     virtual void behavior(); //some platforms move constanly
 
