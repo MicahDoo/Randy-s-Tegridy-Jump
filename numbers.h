@@ -12,7 +12,7 @@
 #define SPACING 70.0
 #define ERIC_SIZE 80.0
 #define BUTTERFLY_OFFSET 100
-#define FPS 48
+#define FPS 48.0
 
 #define INITIAL_JUMP_SPEED 20.0
 #define STEP_SIZE 8.0

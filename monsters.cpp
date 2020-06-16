@@ -28,9 +28,9 @@ Monster::Monster(QGraphicsItem *parent) : QGraphicsPixmapItem(parent), timer(new
 }
 
 void Monster::move(){
-    moveBy(2.0*qCos(t),0);
+    moveBy(2.0*qCos(t) *48.0/FPS,0);
     //qDebug() << "moving";
-    t = t + 0.02 * 48/FPS;
+    t = t + 0.02 * 48.0/FPS;
 
     if(scene() != nullptr){
         Player* player = dynamic_cast<Game*>(scene()->views()[0])->getPlayer();

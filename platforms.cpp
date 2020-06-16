@@ -76,7 +76,7 @@ void Horizontal::behavior(){
 }
 
 void Horizontal::move(){
-    moveBy(3.0*qCos(t),0);
+    moveBy(3.0*qCos(t) * 48.0/FPS,0);
     t = t + 0.02*48.0/FPS;
 }
 

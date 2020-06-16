@@ -20,7 +20,7 @@ MrHankey::MrHankey() : timer(new QTimer(this)){
 }
 
 void MrHankey::fly(){
-    moveBy(0,-10);
+    moveBy(0,-10 * 48.0/FPS);
     if(mapToScene(0,0).y() < 0-40){
         qDebug() << "hankey deleted";
         scene()->removeItem(this);

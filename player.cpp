@@ -184,7 +184,7 @@ void Player::keyPressEvent(QKeyEvent *event){
             if(leftKeyHeldDown == false){
                 leftKeyHeldDown = true;
                 if(!movetimer->isActive()){
-                    movetimer->start(1000/FPS);
+                    movetimer->start(1000.0/FPS);
                 }
                 setOrientation(myDirections::directions::left);
                 direction = myDirections::directions::left;
@@ -240,10 +240,10 @@ void Player::keyReleaseEvent(QKeyEvent *event){
 
 void Player::checkHorizontalMovement(){
     if(direction == myDirections::directions::left){
-        setX(x() - STEP_SIZE);
+        setX(x() - STEP_SIZE * 48.0/FPS);
     }
     else{
-        setX(x() + STEP_SIZE);
+        setX(x() + STEP_SIZE * 48.0/FPS);
     }
     if(x() < 0 - randy->pixmap().width()){
         setX(scene()->width()-pixmap().width()/2);
