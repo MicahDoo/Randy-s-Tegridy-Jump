@@ -2,6 +2,8 @@
 
 ## Video link
 
+[![](https://i.imgur.com/9MTT4BU.gif)](https://www.youtube.com/watch?v=MqVeyzc9SXQ)
+
 ## How to play
 
 Keys:
