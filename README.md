@@ -4,7 +4,7 @@
 
 Click the gif to watch the entire video.
 
-[![](https://user-images.githubusercontent.com/57170797/203502021-44b04019-9897-4f91-896e-56d4c53cd3ed.gif)](https://youtu.be/R_4i6SPHQT0)
+[![](https://user-images.githubusercontent.com/57170797/203502021-44b04019-9897-4f91-896e-56d4c53cd3ed.gif)](https://youtu.be/1leKO-uqcpw)
 
 
 ## How to play
