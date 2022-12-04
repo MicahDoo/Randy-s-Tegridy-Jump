@@ -46,13 +46,9 @@ bgm(new QMediaPlayer(this, QMediaPlayer::LowLatency)), killedKenny(new QMediaPla
     connect(this, SIGNAL(paused()), verticaltimer, SLOT(stop()));
     connect(this, SIGNAL(paused()), backgroundtimer, SLOT(stop()));
     connect(this, SIGNAL(paused()), fadetimer, SLOT(stop()));
-    connect(this, SIGNAL(paused()), weedtimer, SLOT(stop()));
-    connect(this, SIGNAL(paused()), angeltimer, SLOT(stop()));
     connect(this, SIGNAL(resumed()), verticaltimer, SLOT(start()));
     connect(this, SIGNAL(resumed()), backgroundtimer, SLOT(start()));
     connect(this, SIGNAL(resumed()), fadetimer, SLOT(start()));
-    connect(this, SIGNAL(resumed()), weedtimer, SLOT(start()));
-    connect(this, SIGNAL(resumed()), angeltimer, SLOT(start()));
 
     // background set up
 
@@ -450,7 +446,7 @@ void Player::smokeFade(){
 
 void Player::setElasticMode(){
     elasticMode = true;
-    BOTTOM = 1000;
+    BOTTOM = SCREEN_HEIGHT + 300;
 }
 
 void Player::setGRAVITY(double number){
@@ -974,16 +970,18 @@ void Player::setFlipEndDistance(int num){
 void Player::setPause(bool a){
     pause = a;
     if(a){
-        emit paused();
         weedRemain = weedlasttimer->remainingTime();
+        qDebug() << "weed remain = " << weedRemain;
         weedlasttimer->stop();
         butterflyRemain = butterflylasttimer->remainingTime();
         butterflylasttimer->stop();
         angelRemain = angellasttimer->remainingTime();
+        qDebug() << "angel remain = " << angelRemain;
         angellasttimer->stop();
         decrouchRemain = decrouchtimer->remainingTime();
         decrouchtimer->stop();
         pause = true;
+        emit paused();
     }
     else{
         emit resumed();

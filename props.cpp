@@ -38,7 +38,7 @@ void Weed::response(){
         tegridyweed->setVolume(1000);
         tegridyweed->play();
         Game* game = dynamic_cast<Game*>(scene()->views()[0]);
-        game->getPlayer()->setBOTTOM(1000.0);
+        game->getPlayer()->setBOTTOM(SCREEN_HEIGHT+300);
         game->getPlayer()->setWeedMode();
     }
 }
